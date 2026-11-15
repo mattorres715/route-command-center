@@ -1,0 +1,460 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Route Command Center</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a0f18">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--ac:#1a73e8;--onac:#fff;--y:#fbbc04;--r:#d93025;--g:#188038;--ink:#202124;--mut:#5f6368;--bg:#f6f7f8;--card:#fff;--field:#fff;--line:#dadce0;--chip:#f1f3f4;--navon:#d3e3fd;--sh:0 1px 3px rgba(60,64,67,.3),0 4px 10px 3px rgba(60,64,67,.15)}
+body.dark{--ac:#669df6;--onac:#08101c;--r:#f28b82;--g:#81c995;--ink:#e8eaed;--mut:#9aa0a6;--bg:#0a0f18;--card:#111826;--field:#0a0f18;--line:#232d3f;--chip:#1a2232;--navon:#1f3558;--sh:0 1px 3px rgba(0,0,0,.5),0 4px 10px 3px rgba(0,0,0,.35);color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{height:100%;margin:0}
+body{font:16px/1.4 "Google Sans",Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+button,select,input,textarea{font:inherit;color:inherit}
+button{min-height:48px;padding:8px 18px;border:0;border-radius:24px;background:var(--chip);font-weight:600;cursor:pointer;transition:transform .08s}
+button:active{transform:scale(.97)}button.pri,#next{background:var(--ac);color:var(--onac)}button.ok{background:var(--g);color:#fff}body.dark button.ok{color:#0b1626}button.warn{background:var(--y);color:#202124}
+input,select,textarea{min-height:48px;padding:8px 14px;border:1px solid var(--line);border-radius:12px;background:var(--field);width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);border-color:var(--ac)}
+header{background:var(--card);padding:10px 14px 0;box-shadow:0 1px 3px rgba(60,64,67,.25);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+header h1{font-size:18px;margin:0;flex:1;display:flex;align-items:center;gap:10px;font-weight:600}
+header h1::before{content:"";width:16px;height:16px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#ea4335;box-shadow:inset 0 0 0 4px #ea4335,inset 0 0 0 8px #fff}
+header input{width:auto;min-height:40px;padding:4px 10px;font-size:14px}header button{min-height:40px;padding:4px 14px;font-size:14px}#theme{min-width:44px;padding:4px 10px;font-size:18px}
+#hsum{width:100%;font-size:14px;font-weight:500;color:var(--mut);padding:2px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbar{width:calc(100% + 28px);height:3px;margin:0 -14px;background:var(--line)}.hbar i{display:block;height:100%;width:0;background:var(--g);transition:width .4s}
+body.nohead header{display:none}
+nav{order:3;display:flex;background:var(--card);box-shadow:0 -1px 3px rgba(60,64,67,.2);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border-radius:0;min-height:62px;font-size:12px;font-weight:600;color:var(--mut);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 0}
+nav button span{font-size:20px;line-height:1;padding:4px 20px;border-radius:16px}nav button.on{color:var(--ink)}nav button.on span{background:var(--navon)}
+main{flex:1;min-height:0;display:grid}#mapwrap{position:relative;min-height:0}#map{position:absolute;inset:0}
+.leaflet-container{background:#f1f3f4;font:inherit}body.dark .leaflet-container{background:#0d131d}
+.leaflet-bar{border:0!important;box-shadow:var(--sh)!important;border-radius:14px!important;overflow:hidden}.leaflet-bar a{width:40px!important;height:40px!important;line-height:40px!important;background:var(--card);color:var(--ink);border-color:var(--line)}
+.leaflet-control-attribution{background:rgba(255,255,255,.75)!important;font-size:10px}body.dark .leaflet-control-attribution{background:rgba(10,15,24,.8)!important;color:#9aa0a6}
+.tl-day{filter:saturate(.12) brightness(1.1) contrast(.9)}
+.tl-night{filter:sepia(.55) hue-rotate(185deg) saturate(1.25) brightness(.7) contrast(1.15)}
+.tl-osmn{filter:grayscale(1) invert(1) sepia(.55) hue-rotate(185deg) saturate(1.25) brightness(.9) contrast(1.1)}
+.tl-satn{filter:brightness(.75)}
+.pin{width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.pin.sel{transform:scale(1.25);box-shadow:0 0 0 4px var(--ac),0 4px 12px rgba(0,0,0,.4)}
+.fab{position:absolute;z-index:500;top:12px;border-radius:24px;box-shadow:var(--sh);min-height:46px;padding:8px 18px;background:var(--card);color:var(--ink)}
+#next{right:12px}#fit{left:62px}#opt{top:68px;right:12px;color:var(--ac)}#lyr{top:68px;left:62px}#loc{top:124px;right:12px}#loc.on{background:var(--ac);color:var(--onac)}
+#card{position:absolute;left:0;right:0;bottom:0;z-index:600;background:var(--card);border-radius:24px 24px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,.25);padding:14px 16px;max-height:68%;overflow:auto;display:grid;gap:10px}
+#card[hidden]{display:none}#card::before{content:"";width:36px;height:4px;border-radius:4px;background:var(--line);justify-self:center}
+.chead{display:flex;justify-content:space-between;gap:8px;font-size:20px;line-height:1.2}.x{min-height:40px;min-width:40px;padding:0;border-radius:50%}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1 1 100px}
+.nav{background:var(--ac);color:var(--onac)}.rm{background:none;color:var(--r);border:1px solid var(--r)}
+details{border-top:1px solid var(--line);padding-top:4px}summary{font-weight:600;min-height:44px;display:flex;align-items:center;cursor:pointer}details>*:not(summary){margin-bottom:8px}
+.tags{display:flex;gap:6px;flex-wrap:wrap}.t{font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;background:var(--chip);color:var(--mut)}
+.t.pA{background:#fce8e6;color:#c5221f}.t.pB{background:#fef3d8;color:#a35a00}.t.pC{background:#e8f0fe;color:#1967d2}.t.n{background:var(--y);color:#202124}
+.t.d,.t.c{background:#f3e8fd;color:#8430ce}.t.s{background:#e6f4ea;color:#137333}.t.late{background:var(--r);color:#fff}
+body.dark .t.pA{background:#5c2724;color:#f6aea9}body.dark .t.pB{background:#4a3410;color:#fdd663}body.dark .t.pC{background:#16243b;color:#aecbfa}
+body.dark .t.d,body.dark .t.c{background:#3b2a54;color:#d7aefb}body.dark .t.s{background:#173a27;color:#81c995}body.dark .t.late{color:#0b1626}
+.why{background:#fef7e0;color:#5f4300;padding:8px 12px;border-radius:12px}body.dark .why{background:#3a3210;color:#ffe9a0}
+#side{overflow:auto;padding:12px;min-height:0}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.stat{cursor:pointer;background:var(--card);border-radius:16px;padding:10px 6px;text-align:center;font-size:12px;font-weight:600;color:var(--mut);box-shadow:0 1px 2px rgba(60,64,67,.3)}.stat b{display:block;font-size:26px;color:var(--ink);line-height:1.1;font-weight:500}
+.stat.on{box-shadow:0 0 0 2px var(--ac);background:var(--navon)}
+.fchip{display:flex;justify-content:space-between;align-items:center;background:var(--navon);padding:10px 14px;border-radius:12px;margin-bottom:8px;font-weight:600}.fchip b{cursor:pointer;color:var(--ac)}
+.comp{margin-top:10px}.comp>summary{font-weight:700}
+.etac{background:var(--card);border-radius:16px;padding:10px 14px;margin-bottom:10px;display:grid;gap:2px;box-shadow:0 1px 2px rgba(60,64,67,.3)}.etac b{font-size:18px;font-weight:600}.etac span{color:var(--mut);font-size:14px}
+.bar{height:8px;border-radius:9px;overflow:hidden;background:var(--line);margin-bottom:12px}.bar i{display:block;height:100%;background:var(--g);transition:width .4s}
+.filters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:10px 0}.filters input{grid-column:1/-1}.filters select{padding:6px 8px;font-size:14px}
+.item{display:flex;gap:12px;align-items:center;padding:12px;border-radius:16px;background:var(--card);margin-bottom:8px;min-height:72px;box-shadow:0 1px 2px rgba(60,64,67,.3);border-left:5px solid transparent;cursor:pointer}
+.item.pA{border-left-color:#ea4335}.item.pB{border-left-color:#f29900}.item.sel{box-shadow:0 0 0 2px var(--ac)}.item.done{opacity:.5}.item.tag-red{border-left-width:8px;border-left-color:#d93025}.item.tag-orange{border-left-width:8px;border-left-color:#e8710a}.item.tag-yellow{border-left-width:8px;border-left-color:#f9ab00}.item.tag-green{border-left-width:8px;border-left-color:#188038}.item.tag-blue{border-left-width:8px;border-left-color:#1a73e8}.item.tag-purple{border-left-width:8px;border-left-color:#9334e6}.tagrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.tagrow>span{font-size:13px;font-weight:600;color:var(--mut);flex:1 0 100%}.tagchip{width:48px;height:48px;min-width:48px;min-height:48px;padding:0;border-radius:50%;border:3px solid var(--card);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25);flex:none}.tagchip.on{box-shadow:0 0 0 3px var(--ac),inset 0 0 0 1px rgba(0,0,0,.2)}.tagchip.none{width:auto;min-width:64px;border-radius:24px;padding:0 14px;background:var(--chip);border:2px dashed var(--line);box-shadow:none;color:var(--ink)}.tagchip.none.on{border-style:solid;border-color:var(--ac)}body.dark .tagchip{box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}.colorflt{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 10px}.colorflt .cflt{min-height:48px;min-width:48px;padding:6px 12px;font-size:13px;display:inline-flex;align-items:center;gap:8px}.colorflt .cflt i{width:16px;height:16px;border-radius:50%;flex:none;box-shadow:0 0 0 1px rgba(0,0,0,.15)}.colorflt .cflt.on{box-shadow:0 0 0 2px var(--ac);background:var(--navon)}.colorflt .grp{flex:1 1 100%;justify-content:center}.ghead{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--mut);padding:10px 4px 6px}.ghead i{width:12px;height:12px;border-radius:50%;flex:none}.clrow{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:center}.clrow i{width:28px;height:28px;border-radius:50%;display:block}.t.tcol{color:#fff}.t.tcol.yink{color:#202124}.pinwrap{width:42px;height:42px;position:relative;display:flex;align-items:center;justify-content:center}.pinwrap::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--tag);box-shadow:0 0 0 2px #fff}body.dark .pinwrap::before{box-shadow:0 0 0 2px #0a0f18}.pinwrap .pin{position:relative;z-index:1}
+.seq{flex:none}.item .pin{box-shadow:none}.itx{flex:1;min-width:0}.itx b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}.itx small{display:block;margin:1px 0 4px}
+.empty{text-align:center;padding:36px 16px;background:var(--card);border-radius:18px}.empty b{font-size:20px}.empty p{color:var(--mut)}
+section.box{background:var(--card);border-radius:18px;padding:14px;margin-bottom:12px;display:grid;gap:10px;box-shadow:0 1px 2px rgba(60,64,67,.3)}
+section.box h2{font-size:17px;margin:0;font-weight:600}small{color:var(--mut)}label{font-size:13px;font-weight:600;color:var(--mut);display:block}
+.dbrow{display:grid;grid-template-columns:1fr 70px 46px;gap:6px;align-items:center}.dbrow button{padding:0;min-height:44px}
+#toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#323232;color:#fff;padding:12px 18px;border-radius:8px;z-index:2000;max-width:92%;box-shadow:var(--sh);font-weight:500}body.dark #toast{background:#e8eaed;color:#202124}#toast[hidden]{display:none}
+#mode{top:124px;left:12px}button[data-m].on{background:var(--ac);color:var(--onac)}
+@media(max-width:799px){main{grid-template-columns:1fr}#mapwrap,#side,#stops,#tools{display:none}
+ body[data-tab=map] #mapwrap{display:block}body[data-tab=stops] #side,body[data-tab=tools] #side{display:block}
+ body[data-tab=stops] #stops,body[data-tab=tools] #tools{display:block}}
+@media(min-width:800px){main{grid-template-columns:1.4fr 1fr}#side{border-left:1px solid var(--line)}#stops{display:block}#tools{display:none}
+ body[data-tab=tools] #stops{display:none}body[data-tab=tools] #tools{display:block}
+ nav{order:1;box-shadow:0 1px 3px rgba(60,64,67,.2)}nav button{flex-direction:row;gap:8px;font-size:15px;min-height:48px}#toast{bottom:24px}}
+</style></head>
+<body data-tab="map">
+<header><h1>Route Command Center</h1><button id="theme" onclick="toggleDark()" aria-label="Toggle dark mode">🌙</button>
+<input type="date" id="day" aria-label="Route day"><button onclick="undo()">↶ Undo</button>
+<div id="hsum"></div><div class="hbar"><i id="hfill"></i></div></header>
+<nav><button data-t="map" class="on"><span>🗺️</span>Map</button><button data-t="stops"><span>📋</span>Stops</button><button data-t="tools"><span>⚙️</span>Tools</button><button id="hbtn" onclick="toggleHead()"><span>▴</span>Hide top</button></nav>
+<main>
+<div id="mapwrap"><div id="map"></div><button id="next" class="fab" onclick="goNext()">▶ Next stop</button><button id="fit" class="fab" onclick="drawMap(true)">⤢ All</button><button id="opt" class="fab" onclick="optimize()">⚡ Optimize</button><button id="lyr" class="fab" onclick="cycleBase()">🗺 Streets</button><button id="loc" class="fab" onclick="locToggle()">📍 Locate</button><button id="mode" class="fab" onclick="cycleMode()">⚡ Fastest</button><div id="card" hidden></div></div>
+<div id="side">
+<div id="stops">
+<div class="grid" id="stats"></div><div class="bar"><i id="barfill"></i></div><div id="etac" class="etac" hidden></div>
+<div class="row"><button class="pri" onclick="goNext()">▶ Next stop</button><button class="warn" onclick="optimize()">⚡ Optimize route</button></div>
+<div class="filters"><input id="q" placeholder="Search name, address, notes" oninput="renderList()">
+<select id="fs" onchange="renderList()"><option value="">Any status</option><option value="open">Remaining</option><option value="done">Completed</option><option value="skip">Skipped</option><option value="attn">Needs attention</option></select>
+<select id="fp" onchange="renderList()"><option value="">Any priority</option><option>A</option><option>B</option><option>C</option></select>
+<select id="fn" onchange="renderList()"></select></div>
+<div id="colorbar"></div><div id="list"></div></div>
+<div id="tools">
+<section class="box"><h2>Add stops</h2>
+<small>One stop per line: Name, Street, City, ZIP, Notes, Closes, Lat, Lng (last three optional). A header row also works, and may include an optional color column (red, orange, yellow, green, blue or purple).</small>
+<textarea id="paste" rows="6" placeholder="Acme Dental, 120 Main St, Phoenix, 85004, back door"></textarea>
+<div class="row"><button class="pri" onclick="addFromBox()">Add stops</button><button onclick="$('#fileStops').click()">Load CSV file</button></div>
+<input type="file" id="fileStops" accept=".csv,.txt" hidden></section>
+<section class="box"><h2>Route</h2>
+<label>Start location<input id="sIn" placeholder="Address or place, or use my location"></label>
+<div class="row"><button onclick="setPlace('s')">Set start</button><button onclick="useMe()">📍 My location</button><button onclick="clearPlace('s')">Clear</button></div>
+<label>End destination (optional)<input id="eIn" placeholder="Where you want to finish"></label>
+<div class="row"><button onclick="setPlace('e')">Set end</button><button onclick="endEqStart()">Same as start</button><button onclick="clearPlace('e')">Clear</button></div>
+<small id="plInfo"></small>
+<button class="pri" onclick="optimize()">⚡ Optimize route</button>
+<label>Route mode</label>
+<div class="row"><button data-m="fast" onclick="setMode('fast',true)">⚡ Fastest</button><button data-m="biz" onclick="setMode('biz',true)">🏢 Business</button><button data-m="color" onclick="setMode('color',true)">🎨 Color</button></div>
+<small id="modeInfo"></small>
+<div class="row"><label>Start time<input type="time" id="t0" onchange="render()"></label><label>Min per stop<input type="number" id="svc" value="2" min="0" max="30" onchange="render()"></label><label>Fallback mph<input type="number" id="spd" value="25" min="5" max="60" onchange="render()"></label></div>
+<div class="row"><button onclick="toggleView()" id="vbtn">Showing: current order</button><button onclick="retryGeo()">Retry address lookups</button><button onclick="recheckAll()">Re-check all locations</button></div>
+<label><input type="checkbox" id="showLine" checked onchange="render()" style="width:auto;min-height:0"> Show route line</label>
+<label><input type="checkbox" id="showDone" onchange="render()" style="width:auto;min-height:0"> Show completed stops on map</label>
+<small id="optInfo"></small></section>
+<section class="box"><h2>Business priorities</h2><small>Teach one from any stop card with “Save to business list”.</small>
+<div id="dblist"></div>
+<div class="row"><button onclick="exportDb('csv')">Export CSV</button><button onclick="exportDb('json')">Export JSON</button><button onclick="$('#fileDb').click()">Import</button></div>
+<input type="file" id="fileDb" accept=".csv,.json" hidden></section>
+<section class="box"><h2>Saved locations</h2><small id="locinfo"></small><br><small>Separate from the business list. When you pin a stop on the map or paste coordinates, that exact address (same house number, street and ZIP) uses your pin every time after.</small>
+<div class="row"><button onclick="exportLocs('csv')">Export CSV</button><button onclick="exportLocs('json')">Export JSON</button><button onclick="$('#fileLocs').click()">Import</button></div>
+<input type="file" id="fileLocs" accept=".csv,.json" hidden></section>
+<section class="box"><h2>Color labels</h2><small>To tag a stop, open it and tap “✎ Edit address, priority, hours, notes &amp; color”, then pick a color. Colors are only for organizing your van — they do not change priority, the route, or the business list. Rename them here if you want, for example Blue = “Business, closes late”.</small><div id="clabels"></div></section>
+<section class="box"><h2>Backup</h2>
+<div class="row"><button class="pri" onclick="exportAll()">Download full backup</button><button onclick="$('#fileAll').click()">Restore backup</button><button onclick="exportStops()">Stops CSV</button></div>
+<input type="file" id="fileAll" accept=".json" hidden>
+<small>Moving to another device: copy the backup text, send it to yourself, then paste it below on the other device.</small>
+<div class="row"><button onclick="copyBackup()">Copy backup text</button><button onclick="restoreText()">Restore from text</button></div>
+<textarea id="bk" rows="3" placeholder="Paste backup text here, then tap Restore from text"></textarea>
+<button onclick="clearDay()">Clear this day’s stops</button></section>
+</div></div></main>
+<div id="toast" hidden></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KEY='dhl_cc_v1',norm=s=>String(s||'').toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,' ').trim(),zip5=s=>(String(s||'').match(/\d{5}/)||[''])[0];
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+let S={db:{},days:{},day:today(),locs:{}};
+try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r));S.day=today()}catch(e){}
+if(!S.locs||typeof S.locs!=='object')S.locs={};if(!S.colorLabels||typeof S.colorLabels!=='object')S.colorLabels={};
+let watchId=null,locMode=0,meDot=null,meAcc=null,meFix=null,flt="all",tagFlt="",groupByColor=false,endPt=null,BASES,bIdx=0,routeLine=null,RM={},asked=false,busy=false,dOpen=false,hist=[],sel=null,view='cur',placing=null,startPt=null,map,layer,gq=false,tt;
+const D=()=>S.days[S.day]||(S.days[S.day]={stops:[]}),stops=()=>D().stops,byId=id=>stops().find(s=>s.id===id);
+const ordered=()=>view==='orig'?[...stops()].sort((a,b)=>a.n-b.n):stops(),open=s=>s.st==='todo'||s.st==='attn';
+const TAGS=['red','orange','yellow','green','blue','purple'],TAGCOL={red:'#d93025',orange:'#e8710a',yellow:'#f9ab00',green:'#188038',blue:'#1a73e8',purple:'#9334e6'},TAGINK={red:'#fff',orange:'#fff',yellow:'#202124',green:'#fff',blue:'#fff',purple:'#fff'},TAGDEF={red:'Red',orange:'Orange',yellow:'Yellow',green:'Green',blue:'Blue',purple:'Purple'};
+const tagOf=s=>{const t=String(s&&s.tag||'').toLowerCase();return TAGS.includes(t)?t:''},tagLabel=k=>{ensureLabels();return S.colorLabels[k]||TAGDEF[k]||k};
+function ensureLabels(){if(!S.colorLabels||typeof S.colorLabels!=='object')S.colorLabels={};TAGS.forEach(k=>{if(!String(S.colorLabels[k]||'').trim())S.colorLabels[k]=TAGDEF[k]})}
+function setTag(id,k){snap();const s=byId(id);if(!s)return;const t=String(k||'').toLowerCase();if(TAGS.includes(t))s.tag=t;else delete s.tag;save();render()}
+function setTagFlt(k){tagFlt=(!k||tagFlt===k)?'':k;render()}
+function toggleGroupColor(){groupByColor=!groupByColor;render()}
+function setColorLabel(k,v){ensureLabels();S.colorLabels[k]=String(v||'').trim()||TAGDEF[k];save();render()}
+function colorLabelsUI(){const el=$('#clabels');if(!el)return;ensureLabels();el.innerHTML=TAGS.map(k=>`<div class="clrow"><i style="background:${TAGCOL[k]}"></i><input aria-label="${k} label" value="${esc(S.colorLabels[k])}" placeholder="${TAGDEF[k]}" onchange="setColorLabel('${k}',this.value)"></div>`).join('')}
+function colorBar(){const el=$('#colorbar');if(!el)return;ensureLabels();const tf=tagFlt;el.innerHTML=`<div class="colorflt"><button class="cflt${tf?'':' on'}" onclick="setTagFlt('')">All colors</button>`+TAGS.map(k=>`<button class="cflt${tf===k?' on':''}" onclick="setTagFlt('${k}')"><i style="background:${TAGCOL[k]}"></i>${esc(tagLabel(k))}</button>`).join('')+`<button class="cflt grp${groupByColor?' on':''}" onclick="toggleGroupColor()">Group by color</button></div>`}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Browser storage unavailable. Download a backup.')}}
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,3500)}
+function snap(){hist.push(JSON.stringify(stops()));if(hist.length>40)hist.shift()}
+function undo(){if(!hist.length)return toast('Nothing to undo');D().stops=JSON.parse(hist.pop());save();render();toast('Undone')}
+function show(t){document.body.dataset.tab=t;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));setTimeout(()=>map&&map.invalidateSize(),60);if(t==='tools'){dbList();colorLabelsUI()}}
+document.querySelectorAll('nav button[data-t]').forEach(b=>b.onclick=()=>show(b.dataset.t));
+function normT(x){const m=String(x||'').trim().toLowerCase().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/);if(!m)return'';let h=+m[1];if(m[3]==='pm'&&h<12)h+=12;if(m[3]==='am'&&h===12)h=0;return h>23?'':String(h).padStart(2,'0')+':'+(m[2]||'00')}
+const mins=t=>{const [h,m]=t.split(':');return +h*60+ +m},f12=m=>{m=Math.round(m);const h=Math.floor(m/60)%24;return (h%12||12)+':'+String(m%60).padStart(2,'0')+(h<12?' AM':' PM')},late=s=>open(s)&&s.cutoff&&s.eta!=null&&s.eta>mins(s.cutoff);
+let FIN=null;
+function calcEta(){const v=parseFloat($('#spd').value)||25,sv=parseFloat($('#svc').value)||0,tv=$('#t0').value,t0=tv?mins(tv):new Date().getHours()*60+new Date().getMinutes();let t=t0,cur=startPt,n=0;
+ stops().forEach(s=>s.eta=null);ordered().filter(s=>open(s)&&s.lat!=null).forEach(s=>{if(cur)t+=dur(cur,s,v);s.eta=t;t+=sv;cur=s;n++});
+ let fin=t;if(endPt&&cur)fin=t+dur(cur,endPt,v);
+ FIN=n?{t0,fin,n,un:stops().filter(s=>open(s)&&s.lat==null).length}:null}
+function etaCard(){const el=$("#etac");if(!FIN){el.hidden=true;return}el.hidden=false;const d=FIN.fin-FIN.t0,h=Math.floor(d/60),m=Math.round(d%60);
+ el.innerHTML=`<b>Estimated finish ${f12(FIN.fin)}</b><span>${endPt?"arriving at "+esc(endPt.label||"your end point"):"after the last stop"} · about ${h?h+"h ":""}${m}m from ${f12(FIN.t0)} · ${FIN.n} stops left${FIN.un?" (+"+FIN.un+" not located, not counted)":""}</span>`}
+function rmStop(id){const s=byId(id);if(!s||!confirm("Remove "+s.name+" from this route? You can Undo it."))return;snap();D().stops=stops().filter(x=>x.id!==id);sel=null;routeLine=null;markDups();save();render();toast("Removed. Tap Undo at the top to bring it back.")}
+// ---------- business database ----------
+function findDb(name,zip){const n=norm(name),z=zip5(zip),c=Object.values(S.db).filter(b=>norm(b.name)===n);
+ return c.find(b=>b.zip&&z&&b.zip===z)||c.find(b=>!b.zip||!z)||null}
+function saveBiz(b){S.db[norm(b.name)+'|'+zip5(b.zip)]={name:b.name,addr:b.addr||'',city:b.city||'',zip:zip5(b.zip),pr:b.pr||'C',why:b.why||'',notes:b.notes||'',cutoff:normT(b.cutoff),lat:b.lat==null||b.lat===''?null:+b.lat,lng:b.lng==null||b.lng===''?null:+b.lng,trust:!!b.trust,confirmed:b.confirmed===true||b.confirmed==='true',updated:b.updated||today()}}
+// ---------- parsing ----------
+function parseCSV(t){const rows=[];let r=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];
+ if(q){if(c=='"'&&t[i+1]=='"'){f+='"';i++}else if(c=='"')q=false;else f+=c}
+ else if(c=='"')q=true;else if(c==','||c=='\t'){r.push(f);f=''}
+ else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;r.push(f);f='';if(r.some(x=>x.trim()))rows.push(r);r=[]}else f+=c}
+ r.push(f);if(r.some(x=>x.trim()))rows.push(r);return rows}
+function parseStops(t){const rows=parseCSV(t);if(!rows.length)return[];
+ const h=rows[0].map(x=>x.trim().toLowerCase());
+ if(h.includes('name')||h.includes('business')||h.includes('address')||h.includes('street')){rows.shift();
+  const f=a=>h.findIndex(x=>a.includes(x)),m={name:f(['name','business']),addr:f(['addr','address','street']),city:f(['city']),zip:f(['zip','zipcode','postal']),notes:f(['notes','note']),cutoff:f(['cutoff','closes','close','closing']),lat:f(['lat','latitude']),lng:f(['lng','lon','long','longitude']),color:f(['color','colour','tag'])};
+  return rows.map(r=>{const g=k=>(r[m[k]]||'').trim(),o={name:g('name'),addr:g('addr'),city:g('city'),zip:g('zip'),notes:g('notes'),cutoff:g('cutoff'),lat:g('lat'),lng:g('lng'),color:g('color')};if(!o.name)o.name=o.addr;return o})}
+ return rows.map(r0=>{let r=r0.map(x=>x.trim()),lat="",lng="";
+  r=r.filter(x=>{const c=x.match(/^(-?\d{1,3}\.\d{3,})\s*[, ]\s*(-?\d{1,3}\.\d{3,})$/);if(c&&!lat){lat=c[1];lng=c[2];return false}return true});
+  if(!lat){const ix=r.map((x,i)=>/^-?\d{1,3}\.\d{3,}$/.test(x)?i:-1).filter(i=>i>=0);if(ix.length>=2){lat=r[ix[0]];lng=r[ix[1]];r=r.filter((_,i)=>i!==ix[0]&&i!==ix[1])}}
+  if(lat&&Math.abs(+lat)>90){const x=lat;lat=lng;lng=x}
+  if(/^\d/.test(r[0]||"")&&r[1]&&!/\d/.test(r[1])&&(r[2]===undefined||/^[A-Za-z]{2}(\s+\d{5}(-\d{4})?)?$/.test(r[2])||/^\d{5}/.test(r[2])))
+   return{name:r[0],addr:r[0],city:r[1],zip:(r.slice(2).join(" ").match(/\d{5}/)||[""])[0],notes:"",cutoff:"",lat,lng};
+  if(/^[A-Za-z]{2}$/.test(r[3]||"")&&/^\d{5}/.test(r[4]||""))r.splice(3,1);
+  return{name:r[0]||"",addr:r[1]||"",city:r[2]||"",zip:r[3]||"",notes:r[4]||"",cutoff:r[5]||"",lat:lat||r[6]||"",lng:lng||r[7]||""}})}
+function addFromBox(){const rows=parseStops($('#paste').value);if(!rows.length)return toast('Nothing to add');addRows(rows);$('#paste').value='';show('stops')}
+function addRows(rows){snap();const st=stops();let known=0,fresh=0;
+ rows.forEach(r=>{if(!r.name&&!r.addr)return;const b=findDb(r.name,r.zip);b?known++:fresh++;
+  const s={id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),n:st.length+1,name:r.name||'(no name)',addr:r.addr,city:r.city,zip:zip5(r.zip)||r.zip,notes:r.notes,cutoff:normT(r.cutoff)||(b&&b.cutoff)||'',pr:b?b.pr:'C',known:!!b,why:b?b.why:'',st:'todo',lat:null,lng:null,ver:false};
+  if(b&&b.trust&&b.lat!=null&&b.addr&&norm(b.addr)===norm(r.addr)){s.lat=+b.lat;s.lng=+b.lng;s.ver=true;s.src="Saved verified location"}{const Lm=locGet(s);if(Lm)useLoc(s,Lm)}if(r.lat&&r.lng&&isFinite(+r.lat)&&isFinite(+r.lng)){s.lat=+r.lat;s.lng=+r.lng;s.ver=true;s.pin=true;s.src="Your pasted coordinates";locSet(s,"pasted")}if(b&&b.notes)s.notes=[s.notes,b.notes].filter(Boolean).join(' | ');{const tg=String(r.color||r.tag||'').toLowerCase().trim();if(TAGS.includes(tg))s.tag=tg}st.push(s)});
+ markDups();save();render();toast(`${known+fresh} stops added: ${known} recognized, ${fresh} new. Looking up addresses…`);geocode()}
+function markDups(){const c={};stops().forEach(s=>{s.k=s.addr?norm(s.addr)+'|'+zip5(s.zip):'';if(s.k)c[s.k]=(c[s.k]||0)+1});stops().forEach(s=>s.dup=!!s.k&&c[s.k]>1)}
+// ---------- geocoding (free OpenStreetMap Nominatim, ~1 lookup/sec) ----------
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+// Address cleanup shared by all lookups. "US Highway 111", "CA-111", "SR 111", "State Route 111", "Hwy 111" all become "Highway 111"; suite/unit text is dropped.
+function cleanA(raw){return String(raw||"").replace(/\s+/g," ").trim().replace(/\b(?:(?:us|u\.s\.|ca|sr|state)[\s-]*(?:route|rte|hwy|highway)?|hwy|highway)[\s-]*0*(\d{2,3})\b/ig,"Highway $1").replace(/\s+(ste|suite|unit|apt|bldg|building|pmb|c\/o|attn)\b.*$/i,"").replace(/\s+#.*$/,"").trim()}
+function addrVars(s){const raw=(s.addr||"").replace(/\s+/g," ").trim();
+ const cl=cleanA(raw);
+ const hy=cl.replace(/^(\d+)-(\d+)\b/,"$1$2"),st=cl.replace(/^[\d-]+\s+/,""),ct=s.city||"",z=s.zip||"";
+ const mk=(a,zz)=>[a,ct,"CA",zz].filter(Boolean).join(", ");
+ const seen=new Set();return [[mk(raw,z),1],[mk(cl,""),1],[mk(hy,""),1],[mk(cl,z),1],[mk(st,z),0]].filter(x=>x[0]&&!seen.has(x[0])&&seen.add(x[0]))}
+let censusFail=0; // Census is skipped only after 3 failures in a row; reset at the start of every lookup run
+function cityOk(want,have){const w=norm(want);return !w||!have.length||have.some(h=>{const x=norm(h);return x&&(x===w||x.includes(w)||w.includes(x))})}
+function judge(s,zg,cs){const z=zip5(s.zip),c=cityOk(s.city,cs);if(z&&zg)return zg===z?2:(c?1:0);if(!zg&&!cs.length)return 1;return c?2:0}
+function cenVars(s){const raw=(s.addr||"").replace(/\s+/g," ").trim(),cl=cleanA(raw),hy=cl.replace(/^(\d+)-(\d+)\b/,"$1$2");
+ return [...new Set([cl,hy])].filter(Boolean).map(a=>a+", "+(s.city||"")+", CA"+(s.zip?" "+s.zip:""))}
+function census(q){return new Promise(res=>{const cb="cb"+Math.random().toString(36).slice(2),sc=document.createElement("script");let fin=false;
+ const done=r=>{if(fin)return;fin=true;delete window[cb];sc.remove();res(r)};
+ window[cb]=d=>{censusFail=0;const m=d&&d.result&&d.result.addressMatches&&d.result.addressMatches[0],c=m&&m.addressComponents||{};done(m?{lat:m.coordinates.y,lng:m.coordinates.x,zip:c.zip,city:c.city,addr:m.matchedAddress}:null)};
+ sc.onerror=()=>{if(!fin)censusFail++;done(null)};setTimeout(()=>{if(!fin)censusFail++;done(null)},9000);
+ sc.src="https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?benchmark=Public_AR_Current&format=jsonp&callback="+cb+"&address="+encodeURIComponent(q);document.head.appendChild(sc)})}
+async function nomSearch(q,bounded){const j=await(await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=3&addressdetails=1&viewbox=-116.75,33.98,-116.0,33.5"+(bounded?"&bounded=1":"")+"&q="+encodeURIComponent(q))).json();await sleep(1100);return j}
+// Riverside County address points (free public county GIS, no key). Gives the county's own point for an exact house number on a named street.
+const CNTY="https://gis.countyofriverside.us/arcgis_Mapping/rest/services/OpenData/Transportation/MapServer/3/query",SUFX={drive:"DR",dr:"DR",lane:"LN",ln:"LN",street:"ST",st:"ST",avenue:"AVE",ave:"AVE",av:"AVE",place:"PL",pl:"PL",court:"CT",ct:"CT",terrace:"TER",ter:"TER",road:"RD",rd:"RD",way:"WAY",circle:"CIR",cir:"CIR",boulevard:"BLVD",blvd:"BLVD",trail:"TRL",trl:"TRL",parkway:"PKWY",pkwy:"PKWY"},DIRX={east:"E",west:"W",north:"N",south:"S",e:"E",w:"W",n:"N",s:"S"};
+async function county(s){try{const m=cleanA(s.addr).replace(/^(\d+)-(\d+)\b/,"$1$2").match(/^(\d{1,6})\s+(.+)$/);if(!m)return null;let w=m[2].replace(/[.,]/g,"").split(" "),dir="",suf="";
+ if(w.length>1&&DIRX[w[0].toLowerCase()]){dir=DIRX[w[0].toLowerCase()];w=w.slice(1)}
+ if(w.length>1&&SUFX[w[w.length-1].toLowerCase()]){suf=SUFX[w[w.length-1].toLowerCase()];w=w.slice(0,-1)}
+ const core=w.join(" ").toUpperCase().replace(/'/g,"''"),hw=core.match(/^HIGHWAY (\d+)$/);if(!/[A-Z0-9]/.test(core))return null;
+ const where="HOUSE_NUMBER="+(+m[1])+" AND "+(hw?"(STREET_NAME LIKE 'HIGHWAY "+hw[1]+"%' OR STREET_NAME LIKE 'HWY "+hw[1]+"%')":"STREET_NAME LIKE '"+core+"%'");
+ const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),9000);
+ const r=await fetch(CNTY+"?"+new URLSearchParams({where,outFields:"DIR,STREET_NAME,STREET_TYPE,CITY,ZIP,ADDRESS,ADDRESS_TYPE",returnGeometry:"true",outSR:"4326",f:"json",resultRecordCount:"50"}),{signal:ac.signal});clearTimeout(tm);
+ const j=await r.json();let f=(j.features||[]).filter(x=>x.geometry&&isFinite(x.geometry.x)&&isFinite(x.geometry.y)&&!["8","9"].includes(String(x.attributes.ADDRESS_TYPE)));
+ f=f.filter(x=>zip5(x.attributes.ZIP)===zip5(s.zip)||(s.city&&cityOk(s.city,[x.attributes.CITY||""])));if(!f.length)return null;
+ const pref=(arr,fn)=>{const k=arr.filter(fn);return k.length?k:arr};if(suf)f=pref(f,x=>(x.attributes.STREET_TYPE||"").trim()===suf);if(dir)f=pref(f,x=>(x.attributes.DIR||"").trim()===dir);
+ const nm=f.map(x=>norm(x.attributes.ADDRESS).replace(/\bhwy\b/,"highway"));if(new Set(nm).size>1)return null; // two different streets matched: don't guess
+ const med=a=>[...a].sort((x,y)=>x-y)[a.length>>1],c={lat:med(f.map(x=>x.geometry.y)),lng:med(f.map(x=>x.geometry.x))},spread=Math.max(...f.map(x=>hav(c,{lat:x.geometry.y,lng:x.geometry.x})*1000)),a=f[0].attributes;
+ return {lat:c.lat,lng:c.lng,n:f.length,spread,zip:zip5(a.ZIP),m:"County: "+[a.ADDRESS,a.CITY,a.ZIP].filter(Boolean).join(", ")}}catch(e){return null}}
+async function geoOne(s){s.warn="";s.src="";s.match="";{const Lm=locGet(s);if(Lm){useLoc(s,Lm);return true}}let nom=null,soft=null;const vars=addrVars(s),hn=(cleanA(s.addr).replace(/^(\d+)-(\d+)\b/,"$1$2").match(/^(\d+)\s/)||[])[1]||"",dist=(a,b)=>hav(a,b)*1000,fm=d=>d>=1000?(d/1000).toFixed(1)+" km":Math.round(d)+" m";
+ // An OpenStreetMap hit is the exact house only if its house number matches. "est" = Nominatim built it from US Census street ranges (TIGER) or an interpolation line: an estimate, not a second independent source.
+ const ev=(j,exact)=>{for(const r of j){const a=r.address||{};if(!a.road)continue;const cs=[a.city,a.town,a.village,a.hamlet,a.suburb,a.municipality].filter(Boolean),jd=judge(s,(a.postcode||"").slice(0,5),cs);if(!jd)continue;const hok=!!a.house_number&&(!hn||String(a.house_number).split(/[;,]/).some(x=>x.replace(/\D/g,"")===hn));const it={lat:+r.lat,lng:+r.lon,jd,ex:!!(exact&&hok),est:r.category==="place"&&r.type==="house"&&r.osm_type!=="node",zip:(a.postcode||"").slice(0,5),m:(r.display_name||"").split(",").slice(0,4).join(",")};if(it.ex&&(jd===2||cs.length))return it;if(!soft)soft=it}return null};
+ const co=await county(s);
+ let cen=null;if(censusFail<3)for(const q of cenVars(s)){const m=await census(q);if(m){const jd=judge(s,m.zip,[m.city]);if(jd){cen={lat:m.lat,lng:m.lng,jd,m:"Census: "+m.addr,zip:zip5(m.zip)};break}}}
+ if(!(co&&cen&&dist(co,cen)<=250)){ // county + Census already agree: skip the slower OpenStreetMap search
+  for(const[q,exact]of vars){nom=ev(await nomSearch(q,true),exact);if(nom)break}
+  if(!nom&&!soft)for(const[q,exact]of vars.filter(v=>v[1]).slice(0,2)){nom=ev(await nomSearch(q,false),exact);if(nom)break}}
+ let pick=null;const zn=[];
+ if(co){pick=co;s.ver=true;const o=[cen&&["Census",cen],nom&&["OpenStreetMap",nom]].filter(Boolean).map(([n,p])=>[n,dist(co,p)]).sort((a,b)=>a[1]-b[1])[0];
+  if(o&&o[1]<=250)s.src="County address record + "+o[0]+" agree ("+Math.round(o[1])+" m apart)";
+  else{s.src="County address record (no second source within 250 m)";if(o)s.warn="Nearest other source ("+(o[0]==="Census"||nom.est?o[0]+" street-range estimate":o[0]+" address")+") is "+fm(o[1])+" away; using the county point"}
+  if(co.n>1&&co.spread>100)s.warn=[s.warn,"Large property: county has "+co.n+" points across "+fm(co.spread)+"; pin is in their middle"].filter(Boolean).join("; ");
+  if(co.zip&&zip5(s.zip)&&co.zip!==zip5(s.zip))zn.push(co.zip)}
+ else if(nom&&!nom.est){pick=nom;const d=cen?dist(nom,cen):null;
+  if(d!=null&&d<=250){s.ver=true;s.src="OpenStreetMap address + Census agree ("+Math.round(d)+" m apart)"}
+  else if(d!=null){s.ver=false;s.src="OpenStreetMap address (Census estimate is "+fm(d)+" away)";s.warn="Sources differ by "+fm(d)}
+  else{s.ver=true;s.src="OpenStreetMap exact address (one source)"}
+  if(nom.jd===1&&nom.zip)zn.push(nom.zip)}
+ else if(nom||cen){pick=cen||nom;s.ver=false;s.src="Street-range estimate ("+(cen&&nom?"US Census; OpenStreetMap uses the same street data":cen?"US Census":"OpenStreetMap, from Census street data")+")";
+  if(cen&&nom&&dist(cen,nom)>250)s.warn="Estimates differ by "+fm(dist(cen,nom));
+  if(pick.jd===1&&pick.zip)zn.push(pick.zip)}
+ else if(soft){pick=soft;s.ver=false;s.src="Street-level estimate (OpenStreetMap found the street, not the house)"}
+ if(zn.length)s.warn=[s.warn,"ZIP on label ("+zip5(s.zip)+") differs from records ("+zn[0]+")"].filter(Boolean).join("; ");
+ if(!pick)return false;s.lat=pick.lat;s.lng=pick.lng;s.match=pick.m||"";return true}
+// ---------- location memory (separate from the business list) ----------
+// S.locs["<house#> <street>|<ZIP>"] = {addr,city,zip,lat,lng,src:'pinned'|'pasted'|'agree',updated}. Only the exact same house number + street + ZIP matches.
+const HAND={pinned:1,pasted:1};
+function locKey(addr,zip){const m=cleanA(addr).replace(/^(\d+)-(\d+)\b/,"$1$2").match(/^(\d+)\s+(.+)$/),z=zip5(zip);if(!m||!z)return "";
+ return m[1]+" "+norm(m[2]).split(" ").map(w=>(SUFX[w]||DIRX[w]||w).toLowerCase()).join(" ")+"|"+z}
+function locGet(s){const k=locKey(s.addr,s.zip);return k&&S.locs[k]||null}
+function locSet(e,src){const k=locKey(e.addr,e.zip),la=+e.lat,ln=+e.lng;if(!k||e.lat==null||e.lat===""||!isFinite(la)||!isFinite(ln)||Math.abs(la)>90||Math.abs(ln)>180)return false;
+ const o=S.locs[k];if(o&&HAND[o.src]&&!HAND[src])return false; // your own pin is never replaced by an automatic result
+ S.locs[k]={addr:e.addr,city:e.city||"",zip:zip5(e.zip),lat:la,lng:ln,src,updated:e.updated||today()};return true}
+const locSrc=L=>HAND[L.src]?"Your saved pin ("+(L.src==="pasted"?"pasted coordinates":"placed on map")+", "+L.updated+")":"Remembered location (sources agreed on "+L.updated+")";
+function useLoc(s,L){s.lat=L.lat;s.lng=L.lng;s.ver=true;s.src=locSrc(L);s.match="";s.warn=""}
+function forgetLoc(id){const s=byId(id),k=locKey(s.addr,s.zip);if(!k||!S.locs[k])return;if(!confirm("Forget the saved location for "+s.addr+"? Next time this address will be looked up again."))return;
+ delete S.locs[k];if(!s.pin&&/^(Your saved pin|Remembered location)/.test(s.src||"")){s.lat=null;s.lng=null;s.ver=false;s.tried=false;s.src="";RM={};routeLine=null}save();render();locInfo();geocode();toast("Saved location forgotten")}
+function locInfo(){const v=Object.values(S.locs),h=v.filter(x=>HAND[x.src]).length;const el=$("#locinfo");if(el)el.textContent=v.length?`${v.length} saved location${v.length>1?"s":""} (${h} placed or pasted by you, ${v.length-h} where two independent sources agreed).`:"No saved locations yet. Pin a stop on the map or paste coordinates and it is remembered here automatically."}
+function exportLocs(f){const v=Object.values(S.locs);f==="json"?dl("saved-locations.json",JSON.stringify({locs:S.locs},null,1),"application/json"):dl("saved-locations.csv",toCSV(v,["addr","city","zip","lat","lng","src","updated"]),"text/csv")}
+function mergeLocs(arr){let c=0;arr.forEach(e=>{if(e&&locSet(e,["pinned","pasted","agree"].includes(e.src)?e.src:"pinned"))c++});return c}
+function learnLoc(s){const b=findDb(s.name,s.zip);if(b&&s.ver&&s.lat!=null&&(s.pin||/agree/.test(s.src||""))){b.lat=s.lat;b.lng=s.lng;b.addr=s.addr;b.trust=true;save()}}
+async function geocode(){if(gq)return;gq=true;censusFail=0;let fail=false;
+ for(const s of stops()){if(s.lat!=null||s.tried||!s.addr)continue;s.tried=true;
+  try{await geoOne(s)}catch(e){s.tried=false;fail=true;break}
+  if(s.ver&&/ agree \(/.test(s.src||""))locSet(s,"agree");if(s.ver)learnLoc(s);save();render()}
+ gq=false;const t=stops(),bad=t.filter(s=>s.lat==null||!s.ver).length,nol=t.filter(s=>s.lat==null).length,ag=t.filter(s=>/agree/.test(s.src||"")).length,es=t.filter(s=>!s.ver&&/estimate/i.test(s.src||"")).length,wn=t.filter(s=>s.warn).length;
+ toast(fail?"Address lookup failed (offline or blocked). Tap Retry address lookups.":`${t.length-bad} of ${t.length} located exactly (${ag} confirmed by two sources); ${bad} need your check${nol?` (${nol} not found)`:""}${es?`, ${es} are estimates`:""}${wn?`, ${wn} flagged for a mismatch`:""}.`)}
+function recheckAll(){if(!confirm("Re-search every stop you haven't pinned or confirmed yourself? Hand-placed pins from before this update will be searched again too."))return;snap();stops().forEach(s=>{if(!s.pin){s.lat=null;s.lng=null;s.ver=false;s.tried=false;s.warn="";s.src=""}});RM={};routeLine=null;save();render();geocode()}
+async function reAddr(id){const s=byId(id),v=$("#caddr").value.trim();if(!v)return;snap();const cm=v.match(/(-?\d{1,3}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/);if(cm){s.lat=+cm[1];s.lng=+cm[2];s.ver=true;s.pin=true;s.src="Your pasted coordinates";s.warn="";locSet(s,"pasted");locInfo();RM={};routeLine=null;learnLoc(s);save();render(true);return toast("Pin set from those coordinates")}s.addr=v;s.lat=null;s.lng=null;s.ver=false;s.tried=false;RM={};routeLine=null;save();render();toast("Searching…");censusFail=0;
+ try{const ok=await geoOne(s);if(s.ver&&/ agree \(/.test(s.src||""))locSet(s,"agree");if(s.ver)learnLoc(s);save();render(true);toast(ok?(s.ver?"Found it.":"Found approximately. Check the pin."):"Still not found. Try adding the street type (Dr, Ln, Cir) or use Pin on map.")}catch(e){toast("Lookup failed (offline?)")}}
+function retryGeo(){stops().forEach(s=>{if(s.lat==null||!s.ver){s.lat=null;s.lng=null;s.ver=false;s.tried=false}});save();render();geocode()}
+// ---------- map ----------
+const COL={A:'#ea4335',B:'#f29900',C:'#3c6fb5'};
+const color=s=>s.st==='done'?'#2e9e4f':s.st==='skip'?'#8a8a8a':s.st==='attn'?'#FFCC00':!s.ver?'#7b3fa0':COL[s.pr];
+const pinHtml=(s,l,c)=>{const tg=(s.st==='done'||s.st==='skip')?'':tagOf(s),bg=tg?TAGCOL[tg]:color(s),ink=tg?TAGINK[tg]:(s.st==='attn'?'#000':'#fff');return `<div class="pin${c?' sel':''}" style="background:${bg};color:${ink}">${l}</div>`};
+function initMap(){map=L.map('map').setView([33.77,-116.35],10);
+ const A='© OpenStreetMap contributors',E='https://server.arcgisonline.com/ArcGIS/rest/services/',T=(u,o)=>L.tileLayer(E+u+'/MapServer/tile/{z}/{y}/{x}',o),OSM='https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+BASES=[{n:'Streets',day:T('World_Street_Map',{maxZoom:19,className:'tl-day',attribution:'Tiles © Esri'}),night:L.layerGroup([T('Canvas/World_Dark_Gray_Base',{maxNativeZoom:16,maxZoom:17,className:'tl-night',attribution:'Tiles © Esri'}),T('Canvas/World_Dark_Gray_Reference',{maxNativeZoom:16,maxZoom:17,className:'tl-night'})]),nz:17},
+ {n:'Detailed',day:L.tileLayer(OSM,{maxZoom:19,className:'tl-day',attribution:A}),night:L.tileLayer(OSM,{maxZoom:19,className:'tl-osmn',attribution:A})},
+ {n:'Satellite',day:T('World_Imagery',{maxZoom:19,attribution:'Imagery © Esri'}),night:T('World_Imagery',{maxZoom:19,className:'tl-satn',attribution:'Imagery © Esri'})}];applyBase();
+ layer=L.layerGroup().addTo(map);map.on("dragstart",()=>{if(locMode===2){locMode=1;locUI()}});map.on('click',e=>{if(!placing)return;const s=byId(placing);placing=null;if(!s)return;snap();RM={};routeLine=null;s.lat=e.latlng.lat;s.lng=e.latlng.lng;s.ver=true;s.pin=true;s.src="Pinned by you on the map";s.warn="";locSet(s,"pinned");locInfo();learnLoc(s);save();render();toast('Pin placed and marked verified')})}
+function drawMap(fit){layer.clearLayers();const list=ordered(),pts=[];
+ list.forEach((s,i)=>{if(s.lat==null||(!vis(s)&&sel!==s.id))return;pts.push([s.lat,s.lng]);
+  const sz=34;L.marker([s.lat,s.lng],{icon:L.divIcon({className:'',html:pinHtml(s,view==='orig'?s.n:i+1,sel===s.id),iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]}),zIndexOffset:sel===s.id?1000:s.pr==='A'?500:0}).on('click',()=>select(s.id,false)).addTo(layer)});
+ const path=list.filter(s=>s.lat!=null&&open(s)).map(s=>[s.lat,s.lng]);if(startPt)path.unshift([startPt.lat,startPt.lng]);if(endPt)path.push([endPt.lat,endPt.lng]);
+ if($('#showLine').checked){if(routeLine&&view==='cur')L.polyline(routeLine,{color:'#1a73e8',weight:5,opacity:.85}).addTo(layer);else if(path.length>1)L.polyline(path,{color:'#171717',weight:3,dashArray:'6 8',opacity:.7}).addTo(layer)}
+ if(startPt)L.circleMarker([startPt.lat,startPt.lng],{radius:9,color:'#fff',weight:3,fillColor:'#1a73e8',fillOpacity:1}).bindTooltip('Start').addTo(layer);
+ if(endPt)L.marker([endPt.lat,endPt.lng],{icon:L.divIcon({className:'',html:'<div class="pin" style="background:#17181c;color:#fff">🏁</div>',iconSize:[34,34],iconAnchor:[17,17]})}).bindTooltip('End').addTo(layer);
+ if(startPt)pts.push([startPt.lat,startPt.lng]);if(endPt)pts.push([endPt.lat,endPt.lng]);if(fit&&pts.length)map.fitBounds(pts,{padding:[40,40],maxZoom:16})}
+function select(id,zoom=true){sel=id;render();const s=byId(id);if(zoom){show('map');if(s&&s.lat!=null)setTimeout(()=>map.flyTo([s.lat,s.lng],Math.max(map.getZoom(),16),{duration:.6}),80)}}
+const nextStop=()=>{const l=ordered();return l.find(s=>s.st==='todo')||l.find(s=>s.st==='attn')};
+function goNext(){const s=nextStop();s?select(s.id):toast('No remaining stops')}
+// ---------- rendering ----------
+const tags=s=>[`<span class="t p${s.pr}">Priority ${s.pr}</span>`,tagOf(s)?`<span class="t tcol${tagOf(s)==='yellow'?' yink':''}" style="background:${TAGCOL[tagOf(s)]}">${esc(tagLabel(tagOf(s)))}</span>`:'',isBiz(s)?'<span class="t">🏢 Business</span>':'',s.known?'<span class="t">Known</span>':'<span class="t n">New</span>',s.cutoff?`<span class="t${late(s)?' late':''}">Closes ${f12(mins(s.cutoff))}${late(s)?' · may miss':''}</span>`:'',s.eta!=null?`<span class="t">ETA ${f12(s.eta)}</span>`:'',s.dup?'<span class="t d">Possible duplicate</span>':'',s.lat==null?'<span class="t c">No location</span>':!s.ver?`<span class="t c">${/estimate/i.test(s.src||'')?'Estimated location · verify':'Verify location'}</span>`:'',s.warn?`<span class="t c">${esc(s.warn)}</span>`:'',s.far?`<span class="t c">${esc(s.far)}</span>`:'',s.st!=='todo'?`<span class="t s">${{done:'Completed',skip:'Skipped',attn:'Needs attention'}[s.st]}</span>`:''].join('');
+const addrOf=s=>[s.addr,s.city,s.zip].filter(Boolean).join(', ');
+function render(fit){calcEta();calcFar();stats();plInfo();etaCard();renderList();drawMap(fit);cardR();colorLabelsUI()}
+function stats(){const t=stops(),d=t.filter(s=>s.st==='done').length,o=t.filter(open),a=o.filter(s=>s.pr==='A').length,u=t.filter(s=>s.lat==null||!s.ver||s.far).length,p=t.length?Math.round(d/t.length*100):0;
+ $('#stats').innerHTML=[['Total',t.length,'all'],['Done',d,'done'],['Left',o.length,'left'],['Priority A left',a,'A'],['Need check',u,'check'],['Complete',p+'%','done']].map(x=>`<div class="stat${flt===x[2]&&x[2]!=='all'?' on':''}" role="button" onclick="setFlt('${x[2]}')"><b>${x[1]}</b>${x[0]}</div>`).join('');
+ $('#barfill').style.width=p+'%';$('#hfill').style.width=p+'%';const n=nextStop();
+ $('#hsum').textContent=t.length?`${d}/${t.length} done · ${a} A left${FIN?' · Finish ~'+f12(FIN.fin):''}${t.filter(late).length?' · '+t.filter(late).length+' may miss cutoff':''}${n?' · Next: '+n.name:''}`:'No stops yet. Open Tools to add some.';
+ const ns=[...new Set(t.map(s=>s.city||s.zip||'').filter(Boolean))].sort(),f=$('#fn'),cur=f.value;f.innerHTML='<option value="">Any area</option>'+ns.map(n=>`<option>${esc(n)}</option>`).join('');f.value=cur;
+ const L=t.filter(s=>s.lat!=null&&open(s)),oL=[...L].sort((a,b)=>a.n-b.n);$('#vbtn').textContent='Showing: '+(view==='orig'?'original order':'current order');
+ if(L.length>1)$('#optInfo').dataset.cmp=`Original order ≈ ${km(len(oL))} km, current order ≈ ${km(len(L))} km (straight-line, open stops only).`;
+ $('#optInfo').textContent=($('#optInfo').dataset.cmp?$('#optInfo').dataset.cmp+' ':'')+'Times use the free OpenStreetMap road-routing service (no live traffic). The order comes from a search that tries many sequences; it is a strong plan, not a proven optimum. Closing times count most, then your Route mode. If routing is unreachable, straight-line estimates are used.'}
+const FLT={all:()=>true,done:s=>s.st==="done",left:s=>open(s),A:s=>open(s)&&s.pr==="A",check:s=>s.lat==null||!s.ver||!!s.far},FLN={done:"Completed",left:"Remaining",A:"Priority A remaining",check:"Need check"};
+const vis=s=>flt==="all"?(s.st!=="done"||$("#showDone").checked):FLT[flt](s);
+function setFlt(k){flt=(flt===k||k==="all")?"all":k;render()}
+let cOpen=false;
+function renderList(){const q=norm($('#q').value),fs=$('#fs').value,fp=$('#fp').value,fn=$('#fn').value;
+ const base=ordered().map((s,i)=>[s,i+1]).filter(([s])=>FLT[flt](s)&&(!q||norm([s.name,addrOf(s),s.notes].join(' ')).includes(q))&&(!fs||(fs==='open'?open(s):s.st===fs))&&(!fp||s.pr===fp)&&(!fn||(s.city||s.zip)===fn)&&(!tagFlt||tagOf(s)===tagFlt));
+ const row=([s,i])=>`<div class="item${sel===s.id?' sel':''}${s.st==='done'?' done':''} p${s.pr}${tagOf(s)?' tag-'+tagOf(s):''}" onclick="select('${s.id}')"><div class="seq">${pinHtml(s,view==='orig'?s.n:i)}</div><div class="itx"><b>${esc(s.name)}</b><small>${esc(addrOf(s))||'No address'}</small><div class="tags">${tags(s)}</div></div></div>`;
+ const rowsOf=arr=>{if(!groupByColor)return arr.map(row).join("");let h="";for(const k of TAGS.concat('')){const g=arr.filter(([s])=>tagOf(s)===k);if(!g.length)continue;h+=`<div class="ghead">${k?`<i style="background:${TAGCOL[k]}"></i>${esc(tagLabel(k))}`:'No color'} (${g.length})</div>`+g.map(row).join("")}return h};
+ const chip=flt!=="all"?`<div class="fchip"><span>Showing: ${FLN[flt]} (${base.length})</span><b onclick="setFlt('all')">Show all ✕</b></div>`:"";
+ let h;if(flt!=="all")h=rowsOf(base);else{const main=base.filter(([s])=>s.st!=="done"),dn=base.filter(([s])=>s.st==="done");
+  h=rowsOf(main)+(dn.length?`<details class="comp" ${cOpen?"open":""} ontoggle="cOpen=this.open"><summary>✔ Completed (${dn.length})</summary>${rowsOf(dn)}</details>`:"")}
+ colorBar();
+ $('#list').innerHTML=chip+(h||(stops().length?'<div class="empty"><p>No stops match your filters.</p></div>':'<div class="empty"><b>No stops yet</b><p>Load your route to get started.</p><button class="pri" onclick="show(\'tools\')">Add stops</button></div>'))}
+function cardR(){const el=$('#card'),s=byId(sel);if(!s){el.hidden=true;return}el.hidden=false;const i=ordered().indexOf(s)+1;
+ el.innerHTML=`<div class="chead"><b>#${i} ${esc(s.name)}</b><button class="x" onclick="sel=null;render()">✕</button></div>
+ <div>${esc(addrOf(s))||'<i>No address</i>'}</div><div class="tags">${tags(s)}</div>${s.src?`<small>Located by: ${esc(s.src)}${s.match?" · matched “"+esc(s.match)+"”":""}</small>`:''}${s.why?`<div class="why">Why it matters: ${esc(s.why)}</div>`:''}${s.notes?`<div>Notes: ${esc(s.notes)}</div>`:''}
+ <div class="row"><button class="ok" onclick="act('${s.id}','done')">✔ Done</button><button onclick="act('${s.id}','skip')">Skip</button><button class="warn" onclick="act('${s.id}','attn')">Needs attention</button></div>
+ <div class="row"><button onclick="mv('${s.id}',-1)">▲ Earlier</button><button onclick="mv('${s.id}',1)">▼ Later</button><button onclick="mkNext('${s.id}')">Make next</button></div>
+ <div class="row">${s.addr||s.lat!=null?`<button class="nav" onclick="navTo('${s.id}')">📍 Navigate</button>`:''}
+ ${s.lat!=null&&!s.ver?`<button onclick="verify('${s.id}')">Location is right</button>`:''}<button onclick="placing='${s.id}';toast('Tap the map where this stop is')">Pin on map</button>${locGet(s)?`<button onclick="forgetLoc('${s.id}')">Forget saved location</button>`:''}</div>
+ <details ${dOpen?'open':''} ontoggle="dOpen=this.open"><summary>✎ Edit address, priority, hours, notes &amp; color</summary><div class="tagrow"><span>Color tag (organizing only — does not change priority)</span><button class="tagchip none${tagOf(s)?'':' on'}" onclick="setTag('${s.id}','')">None</button>${TAGS.map(k=>`<button class="tagchip${tagOf(s)===k?' on':''}" style="background:${TAGCOL[k]}" aria-label="${esc(tagLabel(k))}" title="${esc(tagLabel(k))}" onclick="setTag('${s.id}','${k}')"></button>`).join('')}${tagOf(s)?`<small>${esc(tagLabel(tagOf(s)))}</small>`:''}</div><input id="caddr" value="${esc(s.addr)}" placeholder="Street address, or paste lat,lng from Google Maps"><button onclick="reAddr('${s.id}')">Fix address &amp; search again</button><div class="row"><select onchange="setPr('${s.id}',this.value)"><option value="A"${s.pr==='A'?' selected':''}>Priority A</option><option value="B"${s.pr==='B'?' selected':''}>Priority B</option><option value="C"${s.pr==='C'?' selected':''}>Priority C</option></select></div><div class="row"><select onchange="setBiz('${s.id}',this.value)"><option value="auto">Type: auto-detect (${isBiz(s)?'business':'home'})</option><option value="1"${s.biz===true?' selected':''}>Business</option><option value="0"${s.biz===false?' selected':''}>Home / residence</option></select></div>
+ <label>Closes at<input id="ccut" type="time" value="${s.cutoff||''}"></label><input id="cwhy" placeholder="Why this priority?" value="${esc(s.why)}"><textarea id="cnotes" rows="2" placeholder="Delivery notes">${esc(s.notes)}</textarea>
+ <button class="pri" onclick="saveCard('${s.id}')">Save to business list</button></details><button class="rm" onclick="rmStop('${s.id}')">🗑 Remove this stop</button>`}
+// ---------- actions ----------
+function act(id,st){const s=byId(id);snap();s.st=s.st===st?'todo':st;if(s.st==='done')sel=null;save();render();if(s.st==='done'){const n=nextStop();toast(n?'Done ✓ moved to Completed. Next: '+n.name:'Route complete ✓')}}
+function setPr(id,p){snap();byId(id).pr=p;save();render()}
+function verify(id){snap();const s=byId(id);s.ver=true;s.pin=true;s.src="Confirmed by you";locSet(s,"pinned");locInfo();learnLoc(s);save();render()}
+function saveCard(id){const s=byId(id);s.why=$('#cwhy').value.trim();s.cutoff=$('#ccut').value;s.notes=$('#cnotes').value.trim();s.known=true;const tr=!!(s.pin||/agree/.test(s.src||""));saveBiz({...s,lat:tr?s.lat:null,lng:tr?s.lng:null,trust:tr,confirmed:true});save();render();toast('Saved to business list as confirmed')}
+function mv(id,d){const a=stops(),i=a.findIndex(s=>s.id===id),j=i+d;if(j<0||j>=a.length)return;snap();routeLine=null;[a[i],a[j]]=[a[j],a[i]];save();render()}
+function mkNext(id){const a=stops(),i=a.findIndex(s=>s.id===id);snap();routeLine=null;const [s]=a.splice(i,1);const k=a.findIndex(open);a.splice(k<0?a.length:k,0,s);save();render()}
+function clearDay(){if(!confirm('Clear all stops for this day? (Business list is kept.)'))return;snap();D().stops=[];sel=null;save();render()}
+$('#day').value=S.day;$('#day').onchange=e=>{S.day=e.target.value||today();hist=[];sel=null;save();render(true)};
+// ---------- route ----------
+const W={A:.55,B:.8,C:1},km=x=>x.toFixed(1);
+function hav(a,b){const r=Math.PI/180,dl=(b.lat-a.lat)*r,dg=(b.lng-a.lng)*r,x=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dg/2)**2;return 12742*Math.asin(Math.sqrt(x))}
+function len(arr){let t=0;for(let i=1;i<arr.length;i++)t+=hav(arr[i-1],arr[i]);return t}
+async function useMe(){const p=await getMe();if(!p)return toast("Location unavailable. Allow location access in your browser.");startPt={...p,label:"My location"};$("#sIn").value="";RM={};routeLine=null;render(true);toast("Start point set")}
+function getMe(){return new Promise(r=>navigator.geolocation?navigator.geolocation.getCurrentPosition(q=>r({lat:q.coords.latitude,lng:q.coords.longitude}),()=>r(null),{enableHighAccuracy:true,timeout:8000}):r(null))}
+function dur(a,b,v){const k=(a.id||"S")+"|"+(b.id||"E");return RM[k]!==undefined?RM[k]:hav(a,b)*1.3/1.609/v*60}
+const pt=p=>p.lng.toFixed(5)+","+p.lat.toFixed(5);
+async function roadMatrix(nodes){const pts=nodes.map((p,i)=>[i,p]).filter(x=>x[1]);
+ const j=await(await fetch("https://router.project-osrm.org/table/v1/driving/"+pts.map(x=>pt(x[1])).join(";")+"?annotations=duration")).json();
+ if(j.code!=="Ok")throw new Error(j.code);const M=nodes.map(()=>nodes.map(()=>0));
+ pts.forEach((a,x)=>pts.forEach((b,y)=>{M[a[0]][b[0]]=j.durations[x][y]==null?999:j.durations[x][y]/60}));return M}
+// Hwy 74 / Bighorn rule: finish Bighorn-area stops (estimated box along Hwy 74 south of Palm Desert; adjust ZONE74 if needed) before any Indian Wells stop. Otherwise fastest order. Never changes service minutes.
+const ZONE74={s:33.640,n:33.700,w:-116.430,e:-116.379},Z74P=60;
+const isIW=s=>!!s&&/indian wells/i.test(s.city||'')||(!!s&&String(s.zip||'').trim()==='92210');
+function in74(s){return !!s&&s.lat!=null&&s.lat>=ZONE74.s&&s.lat<=ZONE74.n&&s.lng>=ZONE74.w&&s.lng<=ZONE74.e&&!isIW(s)}
+function evalSeq(q,M,c){let t=c.t0,pv=0,k=0,r74=0;for(const i of q)if(in74(c.S[i]))r74++;for(const i of q){t+=M[pv][i];const s=c.S[i];k+=c.e*c.w(s)*(t-c.t0);if(in74(s))r74--;else if(r74>0&&isIW(s))k+=Z74P;if(s.cutoff){const l=t-mins(s.cutoff);if(l>0)k+=15*l}t+=c.sv;pv=i}if(c.end)t+=M[pv][c.end];return k+(t-c.t0)}
+function improve(q,M,c){let b=evalSeq(q,M,c),up=true;while(up){up=false;
+ for(let i=0;i<q.length-1&&!up;i++)for(let j=i+1;j<q.length&&!up;j++){const r=q.slice(0,i).concat(q.slice(i,j+1).reverse(),q.slice(j+1)),k=evalSeq(r,M,c);if(k<b-1e-6){q=r;b=k;up=true}}
+ for(let i=0;i<q.length&&!up;i++)for(let j=0;j<q.length&&!up;j++){if(i===j)continue;const r=q.slice(),x=r.splice(i,1)[0];r.splice(j,0,x);const k=evalSeq(r,M,c);if(k<b-1e-6){q=r;b=k;up=true}}}
+ return[q,b]}
+function nn(M,ids,from){const l=[...ids],o=[];let c=from;while(l.length){let bi=0;l.forEach((x,i)=>{if(M[c][x]<M[c][l[bi]])bi=i});c=l.splice(bi,1)[0];o.push(c)}return o}
+async function optimize(){if(busy)return;const all=stops(),fin=all.filter(s=>!open(s)),pool=all.filter(s=>open(s)&&s.lat!=null),rest=all.filter(s=>open(s)&&s.lat==null);
+ if(pool.length<2)return toast("Need at least 2 located open stops. Fix the purple ones first.");
+ busy=true;try{
+ if(!startPt&&!asked&&navigator.geolocation){asked=true;toast("Finding your location…");const p=await getMe();if(p)startPt=p}
+ snap();toast("Optimizing with road times…");
+ const nodes=[startPt||null,...pool,...(endPt?[endPt]:[])];let M,src="road";
+ try{M=await roadMatrix(nodes)}catch(e){src="straight-line";const v=parseFloat($("#spd").value)||25;M=nodes.map(a=>nodes.map(b=>a&&b?hav(a,b)*1.3/1.609/v*60:0))}
+ const sv=parseFloat($("#svc").value)||0,tv=$("#t0").value,t0=tv?mins(tv):new Date().getHours()*60+new Date().getMinutes();
+ const c={S:nodes,w:MODES[S.mode||"fast"].w,e:MODES[S.mode||"fast"].e,sv,t0,end:endPt?pool.length+1:0},ids=pool.map((_,i)=>i+1);
+ let pr=[],cur=0;for(const g of [...new Set(ids.map(i=>c.w(nodes[i])))].sort((a,b)=>b-a)){const part=nn(M,ids.filter(i=>c.w(nodes[i])===g),cur);pr.push(...part);if(part.length)cur=part[part.length-1]}
+ let best=null,bc=1e18;for(const sd of [nn(M,ids,0),pr]){const[q,k]=improve(sd,M,c);if(k<bc){best=q;bc=k}}
+ const end=Date.now()+1500;while(Date.now()<end){const q=best.slice();for(let z=0;z<3;z++){const i=Math.random()*q.length|0,j=Math.random()*q.length|0,x=q.splice(i,1)[0];q.splice(j,0,x)}const[r,k]=improve(q,M,c);if(k<bc-1e-6){best=r;bc=k}await new Promise(r=>setTimeout(r,0))}
+ const out=best.map(i=>nodes[i]);D().stops=[...fin,...out,...rest];view="cur";RM={};
+ nodes.forEach((a,x)=>{if(x>pool.length||(x===0&&!startPt))return;nodes.forEach((b,y)=>{if(y&&y<=pool.length&&x!==y)RM[(x?a.id:"S")+"|"+b.id]=M[x][y]});if(endPt&&x>0)RM[a.id+"|E"]=M[x][pool.length+1]});
+ routeLine=null;if(src==="road"){try{const j=await(await fetch("https://router.project-osrm.org/route/v1/driving/"+[...(startPt?[startPt]:[]),...out,...(endPt?[endPt]:[])].map(pt).join(";")+"?overview=full&geometries=geojson")).json();if(j.code==="Ok")routeLine=j.routes[0].geometry.coordinates.map(q=>[q[1],q[0]])}catch(e){}}
+ save();render(true);show("map");
+ const nl=D().stops.filter(late).length,lst=out[out.length-1],tot=(lst&&lst.eta!=null?Math.round(lst.eta+sv-t0):0)+(endPt?Math.round(M[best[best.length-1]][pool.length+1]):0),ap=out.map((s,i)=>s.pr==="A"?i+1:0).filter(Boolean);
+ toast(`${MODES[S.mode||"fast"].n} route ready: ${out.length} stops, about ${Math.floor(tot/60)}h ${tot%60}m, done around ${f12(t0+tot)} (${src==="road"?"road times, no live traffic":"straight-line estimates"}).${ap.length?" Priority A at #"+ap.join(", #")+".":""}${nl?" "+nl+" may miss a cutoff.":""}`)
+ }finally{busy=false}}
+async function setPlace(k){const q=$(k==="s"?"#sIn":"#eIn").value.trim();if(!q)return toast("Type an address or place first");toast("Searching…");
+ try{const j=await(await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&viewbox=-116.75,33.98,-116.0,33.5&q="+encodeURIComponent(q))).json();
+ if(!j[0])return toast("Couldn't find that. Add the city and ZIP and try again.");
+ const p={lat:+j[0].lat,lng:+j[0].lon,label:q,typed:true};if(k==="s")startPt=p;else endPt=p;
+ RM={};routeLine=null;savePlan();render(true);toast((k==="s"?"Start":"End")+" set to: "+j[0].display_name.split(",").slice(0,3).join(",")+". Check it on the map.")}catch(e){toast("Lookup failed (offline?). Try again.")}}
+function clearPlace(k){if(k==="s"){startPt=null;$("#sIn").value=""}else{endPt=null;$("#eIn").value=""}RM={};routeLine=null;savePlan();render()}
+function endEqStart(){if(!startPt)return toast("Set a start first");endPt={...startPt};$("#eIn").value=startPt.label&&startPt.typed?startPt.label:"";RM={};routeLine=null;savePlan();render(true);toast("Route will end where it starts")}
+function savePlan(){S.plan={s:startPt&&startPt.typed?startPt:null,e:endPt&&endPt.typed?endPt:null};save()}
+function plInfo(){$("#plInfo").textContent="Start: "+(startPt?(startPt.label||"My location"):"best first stop")+" · End: "+(endPt?(endPt.label||"My location"):"after last stop")}
+function setDark(on,persist){document.body.classList.toggle("dark",on);$("#theme").textContent=on?"☀️":"🌙";try{if(persist)localStorage.setItem("dhl_cc_dark",on?"1":"0")}catch(e){}if(map&&BASES)applyBase()}
+function toggleDark(){setDark(!document.body.classList.contains("dark"),true)}
+function applyBackup(t){try{const j=JSON.parse(t);Object.assign(S.db,j.db||{});Object.assign(S.days,j.days||{});mergeLocs(Object.values(j.locs||{}));locInfo();if(j.colorLabels&&typeof j.colorLabels==='object'){ensureLabels();TAGS.forEach(k=>{const v=String(j.colorLabels[k]||'').trim();if(v)S.colorLabels[k]=v})}
+ if(j.plan&&!(S.plan&&(S.plan.s||S.plan.e))){S.plan=j.plan;startPt=j.plan.s||null;endPt=j.plan.e||null;$("#sIn").value=startPt?startPt.label:"";$("#eIn").value=endPt?endPt.label:""}
+ const ks=Object.keys(j.days||{}).sort();if(ks.length&&!(S.days[S.day]&&S.days[S.day].stops.length))S.day=ks[ks.length-1];$("#day").value=S.day;
+ save();render(true);toast("Backup restored for "+S.day)}catch(e){toast("That isn't a valid backup")}}
+function copyBackup(){const t=JSON.stringify(S);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Backup copied. Paste it into Notes, an email or a message to yourself."),()=>{$("#bk").value=t;$("#bk").select();toast("Copy the text from the box below.")})}
+function restoreText(){applyBackup($("#bk").value)}
+function navTo(id){const s=byId(id);if(!s)return;const a=[s.addr,s.city,"CA",s.zip].filter(Boolean).join(", "),dest=s.addr?a:(s.lat!=null?s.lat+","+s.lng:"");
+ if(!dest)return toast("No address to navigate to");
+ try{if(navigator.clipboard)navigator.clipboard.writeText(dest).catch(()=>{})}catch(e){}
+ window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(dest)+"&travelmode=driving","_blank");
+ toast("Address copied: "+dest)}
+function setNoHead(on,persist){document.body.classList.toggle("nohead",on);$("#hbtn").innerHTML="<span>"+(on?"▾":"▴")+"</span>"+(on?"Show top":"Hide top");try{if(persist)localStorage.setItem("dhl_cc_nohead",on?"1":"0")}catch(e){}setTimeout(()=>map&&map.invalidateSize(),80)}
+function toggleHead(){setNoHead(!document.body.classList.contains("nohead"),true)}
+function locUI(){const b=$("#loc");b.textContent=locMode===2?"🎯 Following":locMode===1?"📍 Live":"📍 Locate";b.classList.toggle("on",locMode>0)}
+function onFix(p){const c=p.coords;meFix={lat:c.latitude,lng:c.longitude,acc:c.accuracy};const ll=[meFix.lat,meFix.lng];
+ if(!meDot){meAcc=L.circle(ll,{radius:c.accuracy,color:"#1a73e8",weight:1,fillOpacity:.12,interactive:false}).addTo(map);meDot=L.circleMarker(ll,{radius:9,color:"#fff",weight:3,fillColor:"#1a73e8",fillOpacity:1,interactive:false}).addTo(map);if(locMode===2)map.setView(ll,Math.max(map.getZoom(),15))}
+ else{meAcc.setLatLng(ll).setRadius(c.accuracy);meDot.setLatLng(ll);if(locMode===2)map.panTo(ll)}}
+function locStop(){if(watchId!==null)navigator.geolocation.clearWatch(watchId);watchId=null;locMode=0;if(meDot){meDot.remove();meAcc.remove()}meDot=meAcc=meFix=null;locUI()}
+function locToggle(){if(locMode===0){if(!window.isSecureContext)return toast("Location only works when the app is opened from its https website (GitHub Pages), not from a downloaded file.");if(!navigator.geolocation)return toast("Location is not available on this device");locMode=2;
+  watchId=navigator.geolocation.watchPosition(onFix,e=>{toast(e.code===1?"Location permission denied. Allow it in Chrome's site settings.":"Can't get a location signal right now.");if(e.code===1)locStop()},{enableHighAccuracy:true,maximumAge:2000,timeout:20000});toast("Finding you…")}
+ else if(locMode===2){locMode=1;if(meFix)toast("Following off. Tap again to stop tracking.")}
+ else locStop();locUI()}
+function calcFar(){const L=stops().filter(s=>s.lat!=null&&!s.pin),grp={},med=a=>[...a].sort((x,y)=>x-y)[a.length>>1];stops().forEach(s=>s.far="");
+ L.forEach(s=>{const z=zip5(s.zip);if(z)(grp[z]=grp[z]||[]).push(s)});
+ Object.values(grp).forEach(g=>{if(g.length<3)return;const c={lat:med(g.map(s=>s.lat)),lng:med(g.map(s=>s.lng))};g.forEach(s=>{const d=hav(s,c);if(d>12)s.far="Far from other "+zip5(s.zip)+" stops ("+d.toFixed(0)+" km)"})});
+ if(L.length>=5){const c={lat:med(L.map(s=>s.lat)),lng:med(L.map(s=>s.lng))};L.forEach(s=>{const d=hav(s,c);if(!s.far&&d>45)s.far="Far from the rest of your stops ("+d.toFixed(0)+" km)"})}}
+function applyBase(){BASES.forEach(b=>{b.day.remove();b.night.remove()});const b=BASES[bIdx],dk=document.body.classList.contains("dark");(dk?b.night:b.day).addTo(map);map.setMaxZoom(dk&&b.nz?b.nz:19);$("#lyr").textContent="🗺 "+b.n}
+const BIZRX=/\b(inc|llc|ltd|corp|co|company|club|bank|hotel|resort|school|academy|medical|health|center|centre|dental|dentist|clinic|hospital|golf|shop|store|boutique|motorcars|motors|apple|ups|hoa|office|management|marriott|hyatt|restaurant|cafe|salon|spa|church|studio|gallery|realty|insurance|law|attorney|design|designs|tile|audio|wearhouse|bedrosians|association|properties|partners|group|services|solutions|market|pharmacy|bar|grill|fitness|gym|plaza|mall|institute|foundation)\b/i;
+function isBiz(s){if(s.biz===true||s.biz===false)return s.biz;return !!(s.cutoff||s.known||/\b(ste|suite|bldg|building|pmb)\b/i.test(s.addr||"")||BIZRX.test(s.name||""))}
+function setBiz(id,v){const s=byId(id);snap();if(v==="auto")delete s.biz;else s.biz=v==="1";save();render()}
+const MODES={fast:{n:"Fastest",ic:"⚡",e:0,w:()=>0,d:"Shortest total drive time. Closing times still count."},
+ biz:{n:"Business first",ic:"🏢",e:1,w:s=>(isBiz(s)?1:0)+(s.pr==="A"?.5:s.pr==="B"?.2:0),d:"Businesses (they close) come earlier and homes later. Closing times are respected."},
+ color:{n:"Color order",ic:"🎨",e:8,w:s=>s.pr==="A"?1:s.pr==="B"?.5:0,d:"Red Priority A first, then orange B, then blue C. A tight closing time can still override."}};
+function modeUI(){const k=S.mode||"fast",m=MODES[k];$("#mode").textContent=m.ic+" "+m.n;document.querySelectorAll("[data-m]").forEach(b=>b.classList.toggle("on",b.dataset.m===k));$("#modeInfo").textContent=m.d}
+function setMode(k,run){S.mode=k;save();modeUI();if(run)optimize()}
+function cycleMode(){const ks=Object.keys(MODES);setMode(ks[(ks.indexOf(S.mode||"fast")+1)%ks.length],true)}
+function cycleBase(){bIdx=(bIdx+1)%BASES.length;applyBase()}
+function toggleView(){view=view==='cur'?'orig':'cur';render()}
+// ---------- import / export ----------
+function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000)}
+const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"',toCSV=(rows,c)=>[c.join(',')].concat(rows.map(r=>c.map(k=>q(r[k])).join(','))).join('\n');
+function exportDb(f){const rows=Object.values(S.db);f==='json'?dl('business-priorities.json',JSON.stringify({db:S.db},null,1),'application/json'):dl('business-priorities.csv',toCSV(rows,['name','addr','city','zip','pr','why','notes','confirmed','updated','cutoff','lat','lng']),'text/csv')}
+function exportStops(){dl('stops-'+S.day+'.csv',toCSV(stops().map(s=>({...s,priority:s.pr,status:s.st,color:tagOf(s)})),['n','name','addr','city','zip','priority','status','notes','cutoff','lat','lng','color','ver']),'text/csv')}
+function exportAll(){dl('route-backup-'+S.day+'.json',JSON.stringify(S),'application/json')}
+function readFile(inp,cb){inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{cb(String(r.result),f.name);inp.value=''};r.readAsText(f)}}
+readFile($('#fileStops'),t=>{$('#paste').value=t;toast('File loaded. Review, then tap Add stops.')});
+readFile($('#fileAll'),applyBackup);
+readFile($('#fileLocs'),(t,n)=>{let arr=[];try{if(/\.json$/i.test(n)){const j=JSON.parse(t);arr=Array.isArray(j)?j:Object.values(j.locs||j)}else{const r=parseCSV(t),h=r.shift().map(x=>x.trim().toLowerCase());arr=r.map(x=>Object.fromEntries(h.map((k,i)=>[k,(x[i]||'').trim()])))}}catch(e){return toast('Could not read that file')}
+ const c=mergeLocs(arr);save();locInfo();toast(c+' saved locations imported')});
+readFile($('#fileDb'),(t,n)=>{let arr=[];try{if(/\.json$/i.test(n)){const j=JSON.parse(t);arr=Array.isArray(j)?j:Object.values(j.db||j)}
+ else{const r=parseCSV(t),h=r.shift().map(x=>x.trim().toLowerCase());arr=r.map(x=>Object.fromEntries(h.map((k,i)=>[k,x[i]])))}}catch(e){return toast('Could not read that file')}
+ let c=0;arr.forEach(b=>{if(!b||!b.name)return;const p=String(b.pr||b.priority||'C').trim().toUpperCase().slice(-1);saveBiz({...b,pr:'ABC'.includes(p)?p:'C'});c++});save();dbList();toast(c+' businesses imported. Re-add or refresh stops to match them.')});
+function dbList(){const v=Object.entries(S.db);$('#dblist').innerHTML=v.length?v.map(([k,b])=>`<div class="dbrow"><div><b>${esc(b.name)}</b> <small>${esc(b.zip)} ${b.confirmed?'· confirmed':'· needs verification'}${b.why?' · '+esc(b.why):''}</small></div><select onchange="S.db['${esc(k).replace(/'/g,"\\'")}'].pr=this.value;S.db['${esc(k).replace(/'/g,"\\'")}'].updated=today();save()">${['A','B','C'].map(p=>`<option${b.pr===p?' selected':''}>${p}</option>`).join('')}</select><button onclick="delBiz('${esc(k).replace(/'/g,"\\'")}')">✕</button></div>`).join(''):'<small>No businesses saved yet.</small>'}
+function delBiz(k){delete S.db[k];save();dbList()}
+{let pr=null;try{pr=localStorage.getItem("dhl_cc_dark")}catch(e){}setDark(pr===null?matchMedia("(prefers-color-scheme: dark)").matches:pr==="1",false)}{let nh=null;try{nh=localStorage.getItem("dhl_cc_nohead")}catch(e){}setNoHead(nh==="1",false)}if(S.plan){startPt=S.plan.s||null;endPt=S.plan.e||null;$("#sIn").value=startPt?startPt.label:"";$("#eIn").value=endPt?endPt.label:""}modeUI();initMap();locInfo();render(true);if(stops().some(s=>s.lat==null&&!s.tried))geocode();
+
+// Installable app: offline helper (only works on https / GitHub Pages; ignored when opened as a file)
+if('serviceWorker' in navigator&&window.isSecureContext&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
