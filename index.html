@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Route Command Center</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0a0f18">
+<meta name="theme-color" content="#ffffff">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -19,10 +19,12 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);border-color
 header{background:var(--card);padding:10px 14px 0;box-shadow:0 1px 3px rgba(60,64,67,.25);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 header h1{font-size:18px;margin:0;flex:1;display:flex;align-items:center;gap:10px;font-weight:600}
 header h1::before{content:"";width:16px;height:16px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#ea4335;box-shadow:inset 0 0 0 4px #ea4335,inset 0 0 0 8px #fff}
-header input{width:auto;min-height:40px;padding:4px 10px;font-size:14px}header button{min-height:40px;padding:4px 14px;font-size:14px}#theme{min-width:44px;padding:4px 10px;font-size:18px}
+header input{width:auto;min-height:40px;padding:4px 10px;font-size:14px}header button{min-height:40px;padding:4px 14px;font-size:14px}
 #hsum{width:100%;font-size:14px;font-weight:500;color:var(--mut);padding:2px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hbar{width:calc(100% + 28px);height:3px;margin:0 -14px;background:var(--line)}.hbar i{display:block;height:100%;width:0;background:var(--g);transition:width .4s}
-body.nohead header{display:none}
+body.nohead header{display:none}.hic{min-width:48px;min-height:48px!important;padding:0!important;border-radius:50%;font-size:20px!important;line-height:1}#hbtn{font-size:24px!important}.hbr{flex-basis:100%;height:0}
+#showtop{display:none;position:fixed;z-index:1500;top:env(safe-area-inset-top);left:50%;transform:translateX(-50%);min-width:64px;min-height:48px;padding:0 18px;border-radius:0 0 18px 18px;background:var(--card);color:var(--ink);box-shadow:var(--sh);font-size:24px;line-height:1}body.nohead #showtop{display:block}body.nohead #side{padding-top:52px}
+html,body,#side,#card{overscroll-behavior-y:contain}
 nav{order:3;display:flex;background:var(--card);box-shadow:0 -1px 3px rgba(60,64,67,.2);padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;background:none;border-radius:0;min-height:62px;font-size:12px;font-weight:600;color:var(--mut);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 0}
 nav button span{font-size:20px;line-height:1;padding:4px 20px;border-radius:16px}nav button.on{color:var(--ink)}nav button.on span{background:var(--navon)}
@@ -76,10 +78,10 @@ section.box h2{font-size:17px;margin:0;font-weight:600}small{color:var(--mut)}la
  nav{order:1;box-shadow:0 1px 3px rgba(60,64,67,.2)}nav button{flex-direction:row;gap:8px;font-size:15px;min-height:48px}#toast{bottom:24px}}
 </style></head>
 <body data-tab="map">
-<header><h1>Route Command Center</h1><button id="theme" onclick="toggleDark()" aria-label="Toggle dark mode">🌙</button>
+<header><h1>Route Command Center</h1><button id="theme" class="hic" onclick="toggleDark()" aria-label="Theme">🌗</button><button id="rfr" class="hic" onclick="appRefresh()" aria-label="Refresh the app" title="Refresh the app">↻</button><button id="hbtn" class="hic" onclick="toggleHead()" aria-label="Hide the top section" title="Hide the top section">⌃</button><i class="hbr"></i>
 <input type="date" id="day" aria-label="Route day"><button onclick="undo()">↶ Undo</button>
 <div id="hsum"></div><div class="hbar"><i id="hfill"></i></div></header>
-<nav><button data-t="map" class="on"><span>🗺️</span>Map</button><button data-t="stops"><span>📋</span>Stops</button><button data-t="tools"><span>⚙️</span>Tools</button><button id="hbtn" onclick="toggleHead()"><span>▴</span>Hide top</button></nav>
+<nav><button data-t="map" class="on"><span>🗺️</span>Map</button><button data-t="stops"><span>📋</span>Stops</button><button data-t="tools"><span>⚙️</span>Tools</button></nav><button id="showtop" onclick="toggleHead()" aria-label="Show the top section" title="Show the top section">⌄</button>
 <main>
 <div id="mapwrap"><div id="map"></div><button id="next" class="fab" onclick="goNext()">▶ Next stop</button><button id="fit" class="fab" onclick="drawMap(true)">⤢ All</button><button id="opt" class="fab" onclick="optimize()">⚡ Optimize</button><button id="lyr" class="fab" onclick="cycleBase()">🗺 Streets</button><button id="loc" class="fab" onclick="locToggle()">📍 Locate</button><button id="mode" class="fab" onclick="cycleMode()">⚡ Fastest</button><div id="card" hidden></div></div>
 <div id="side">
@@ -105,7 +107,7 @@ section.box h2{font-size:17px;margin:0;font-weight:600}small{color:var(--mut)}la
 <small id="plInfo"></small>
 <button class="pri" onclick="optimize()">⚡ Optimize route</button>
 <label>Route mode</label>
-<div class="row"><button data-m="fast" onclick="setMode('fast',true)">⚡ Fastest</button><button data-m="biz" onclick="setMode('biz',true)">🏢 Business</button><button data-m="color" onclick="setMode('color',true)">🎨 Color</button></div>
+<div class="row"><button data-m="fast" onclick="setMode('fast',true)">⚡ Fastest</button><button data-m="biz" onclick="setMode('biz',true)">🏢 Business</button><button data-m="color" onclick="setMode('color',true)">⭐ Priority A/B/C</button></div>
 <small id="modeInfo"></small>
 <div class="row"><label>Start time<input type="time" id="t0" onchange="render()"></label><label>Min per stop<input type="number" id="svc" value="2" min="0" max="30" onchange="render()"></label><label>Fallback mph<input type="number" id="spd" value="25" min="5" max="60" onchange="render()"></label></div>
 <div class="row"><button onclick="toggleView()" id="vbtn">Showing: current order</button><button onclick="retryGeo()">Retry address lookups</button><button onclick="recheckAll()">Re-check all locations</button></div>
@@ -123,6 +125,8 @@ section.box h2{font-size:17px;margin:0;font-weight:600}small{color:var(--mut)}la
 <section class="box"><h2>Backup</h2>
 <div class="row"><button class="pri" onclick="exportAll()">Download full backup</button><button onclick="$('#fileAll').click()">Restore backup</button><button onclick="exportStops()">Stops CSV</button></div>
 <input type="file" id="fileAll" accept=".json" hidden>
+<button onclick="shareBiz()">📤 Share business list only</button>
+<small>Shares businesses, closing times, notes and saved pins only — no customer stops. Your coworker loads it with Restore backup.</small>
 <small>Moving to another device: copy the backup text, send it to yourself, then paste it below on the other device.</small>
 <div class="row"><button onclick="copyBackup()">Copy backup text</button><button onclick="restoreText()">Restore from text</button></div>
 <textarea id="bk" rows="3" placeholder="Paste backup text here, then tap Restore from text"></textarea>
@@ -148,7 +152,7 @@ function setTagFlt(k){tagFlt=(!k||tagFlt===k)?'':k;render()}
 function toggleGroupColor(){groupByColor=!groupByColor;render()}
 function setColorLabel(k,v){ensureLabels();S.colorLabels[k]=String(v||'').trim()||TAGDEF[k];save();render()}
 function colorLabelsUI(){const el=$('#clabels');if(!el)return;ensureLabels();el.innerHTML=TAGS.map(k=>`<div class="clrow"><i style="background:${TAGCOL[k]}"></i><input aria-label="${k} label" value="${esc(S.colorLabels[k])}" placeholder="${TAGDEF[k]}" onchange="setColorLabel('${k}',this.value)"></div>`).join('')}
-function colorBar(){const el=$('#colorbar');if(!el)return;ensureLabels();const tf=tagFlt;el.innerHTML=`<div class="colorflt"><button class="cflt${tf?'':' on'}" onclick="setTagFlt('')">All colors</button>`+TAGS.map(k=>`<button class="cflt${tf===k?' on':''}" onclick="setTagFlt('${k}')"><i style="background:${TAGCOL[k]}"></i>${esc(tagLabel(k))}</button>`).join('')+`<button class="cflt grp${groupByColor?' on':''}" onclick="toggleGroupColor()">Group by color</button></div>`}
+function colorBar(){const el=$('#colorbar');if(!el)return;ensureLabels();const tf=tagFlt;el.innerHTML=`<div class="colorflt"><button class="cflt${tf?'':' on'}" onclick="setTagFlt('')">All colors</button>`+TAGS.map(k=>`<button class="cflt${tf===k?' on':''}" onclick="setTagFlt('${k}')"><i style="background:${TAGCOL[k]}"></i>${esc(tagLabel(k))}</button>`).join('')+`<button class="cflt grp${groupByColor?' on':''}" onclick="toggleGroupColor()">Group by color (view only)</button></div>`}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Browser storage unavailable. Download a backup.')}}
 function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,3500)}
 function snap(){hist.push(JSON.stringify(stops()));if(hist.length>40)hist.shift()}
@@ -380,8 +384,9 @@ async function optimize(){if(busy)return;const all=stops(),fin=all.filter(s=>!op
  const c={S:nodes,w:MODES[S.mode||"fast"].w,e:MODES[S.mode||"fast"].e,sv,t0,end:endPt?pool.length+1:0},ids=pool.map((_,i)=>i+1);
  let pr=[],cur=0;for(const g of [...new Set(ids.map(i=>c.w(nodes[i])))].sort((a,b)=>b-a)){const part=nn(M,ids.filter(i=>c.w(nodes[i])===g),cur);pr.push(...part);if(part.length)cur=part[part.length-1]}
  let best=null,bc=1e18;for(const sd of [nn(M,ids,0),pr]){const[q,k]=improve(sd,M,c);if(k<bc){best=q;bc=k}}
- const end=Date.now()+1500;while(Date.now()<end){const q=best.slice();for(let z=0;z<3;z++){const i=Math.random()*q.length|0,j=Math.random()*q.length|0,x=q.splice(i,1)[0];q.splice(j,0,x)}const[r,k]=improve(q,M,c);if(k<bc-1e-6){best=r;bc=k}await new Promise(r=>setTimeout(r,0))}
- const out=best.map(i=>nodes[i]);D().stops=[...fin,...out,...rest];view="cur";RM={};
+ let sd=12345;const rnd=()=>{sd=sd+0x6D2B79F5|0;let t=Math.imul(sd^sd>>>15,1|sd);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+ const end=Date.now()+1500;while(Date.now()<end){const q=best.slice();for(let z=0;z<3;z++){const i=rnd()*q.length|0,j=rnd()*q.length|0,x=q.splice(i,1)[0];q.splice(j,0,x)}const[r,k]=improve(q,M,c);if(k<bc-1e-6){best=r;bc=k}await new Promise(r=>setTimeout(r,0))}
+ const out=best.map(i=>nodes[i]);D().stops=[...fin,...out,...rest];view="cur";RM={};groupByColor=false;
  nodes.forEach((a,x)=>{if(x>pool.length||(x===0&&!startPt))return;nodes.forEach((b,y)=>{if(y&&y<=pool.length&&x!==y)RM[(x?a.id:"S")+"|"+b.id]=M[x][y]});if(endPt&&x>0)RM[a.id+"|E"]=M[x][pool.length+1]});
  routeLine=null;if(src==="road"){try{const j=await(await fetch("https://router.project-osrm.org/route/v1/driving/"+[...(startPt?[startPt]:[]),...out,...(endPt?[endPt]:[])].map(pt).join(";")+"?overview=full&geometries=geojson")).json();if(j.code==="Ok")routeLine=j.routes[0].geometry.coordinates.map(q=>[q[1],q[0]])}catch(e){}}
  save();render(true);show("map");
@@ -397,12 +402,17 @@ function clearPlace(k){if(k==="s"){startPt=null;$("#sIn").value=""}else{endPt=nu
 function endEqStart(){if(!startPt)return toast("Set a start first");endPt={...startPt};$("#eIn").value=startPt.label&&startPt.typed?startPt.label:"";RM={};routeLine=null;savePlan();render(true);toast("Route will end where it starts")}
 function savePlan(){S.plan={s:startPt&&startPt.typed?startPt:null,e:endPt&&endPt.typed?endPt:null};save()}
 function plInfo(){$("#plInfo").textContent="Start: "+(startPt?(startPt.label||"My location"):"best first stop")+" · End: "+(endPt?(endPt.label||"My location"):"after last stop")}
-function setDark(on,persist){document.body.classList.toggle("dark",on);$("#theme").textContent=on?"☀️":"🌙";try{if(persist)localStorage.setItem("dhl_cc_dark",on?"1":"0")}catch(e){}if(map&&BASES)applyBase()}
-function toggleDark(){setDark(!document.body.classList.contains("dark"),true)}
+// Theme: auto (follows the phone's light/dark setting, live), light or dark. Saved in dhl_cc_theme; dhl_cc_dark kept for older copies.
+const MQD=matchMedia("(prefers-color-scheme: dark)");let THEME="auto";
+const THEMES={auto:["🌗","Auto (matches phone)"],light:["☀️","Light (day)"],dark:["🌙","Dark (night)"]};
+function setDark(on,persist){if(persist)return setTheme(on?"dark":"light",true);document.body.classList.toggle("dark",on);const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=on?"#111826":"#ffffff";const b=$("#theme");if(b){b.textContent=THEMES[THEME][0];b.title="Theme: "+THEMES[THEME][1]+". Tap to change.";b.setAttribute("aria-label",b.title)}if(map&&BASES)applyBase()}
+function setTheme(t,persist){THEME=THEMES[t]?t:"auto";setDark(THEME==="auto"?MQD.matches:THEME==="dark",false);if(persist)try{localStorage.setItem("dhl_cc_theme",THEME);if(THEME!=="auto")localStorage.setItem("dhl_cc_dark",THEME==="dark"?"1":"0")}catch(e){}}
+function toggleDark(){const n={auto:"light",light:"dark",dark:"auto"}[THEME];setTheme(n,true);toast("Theme: "+THEMES[n][1])}
+{const f=()=>{if(THEME==="auto")setDark(MQD.matches,false)};MQD.addEventListener?MQD.addEventListener("change",f):MQD.addListener(f)}
 function applyBackup(t){try{const j=JSON.parse(t);Object.assign(S.db,j.db||{});Object.assign(S.days,j.days||{});mergeLocs(Object.values(j.locs||{}));locInfo();if(j.colorLabels&&typeof j.colorLabels==='object'){ensureLabels();TAGS.forEach(k=>{const v=String(j.colorLabels[k]||'').trim();if(v)S.colorLabels[k]=v})}
  if(j.plan&&!(S.plan&&(S.plan.s||S.plan.e))){S.plan=j.plan;startPt=j.plan.s||null;endPt=j.plan.e||null;$("#sIn").value=startPt?startPt.label:"";$("#eIn").value=endPt?endPt.label:""}
  const ks=Object.keys(j.days||{}).sort();if(ks.length&&!(S.days[S.day]&&S.days[S.day].stops.length))S.day=ks[ks.length-1];$("#day").value=S.day;
- save();render(true);toast("Backup restored for "+S.day)}catch(e){toast("That isn't a valid backup")}}
+ save();render(true);toast(j.days?"Backup restored for "+S.day:"Business list added: "+Object.keys(j.db||{}).length+" businesses, "+Object.keys(j.locs||{}).length+" saved pins")}catch(e){toast("That isn't a valid backup")}}
 function copyBackup(){const t=JSON.stringify(S);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Backup copied. Paste it into Notes, an email or a message to yourself."),()=>{$("#bk").value=t;$("#bk").select();toast("Copy the text from the box below.")})}
 function restoreText(){applyBackup($("#bk").value)}
 function navTo(id){const s=byId(id);if(!s)return;const a=[s.addr,s.city,"CA",s.zip].filter(Boolean).join(", "),dest=s.addr?a:(s.lat!=null?s.lat+","+s.lng:"");
@@ -410,8 +420,10 @@ function navTo(id){const s=byId(id);if(!s)return;const a=[s.addr,s.city,"CA",s.z
  try{if(navigator.clipboard)navigator.clipboard.writeText(dest).catch(()=>{})}catch(e){}
  window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(dest)+"&travelmode=driving","_blank");
  toast("Address copied: "+dest)}
-function setNoHead(on,persist){document.body.classList.toggle("nohead",on);$("#hbtn").innerHTML="<span>"+(on?"▾":"▴")+"</span>"+(on?"Show top":"Hide top");try{if(persist)localStorage.setItem("dhl_cc_nohead",on?"1":"0")}catch(e){}setTimeout(()=>map&&map.invalidateSize(),80)}
+function setNoHead(on,persist){document.body.classList.toggle("nohead",on);try{if(persist)localStorage.setItem("dhl_cc_nohead",on?"1":"0")}catch(e){}setTimeout(()=>map&&map.invalidateSize(),80)}
 function toggleHead(){setNoHead(!document.body.classList.contains("nohead"),true)}
+// Refresh button: save, pick up a newer app version if one is waiting, then reload. (Pull-down-to-refresh is turned off in CSS.)
+async function appRefresh(){save();toast("Refreshing…");try{const r='serviceWorker' in navigator&&await navigator.serviceWorker.getRegistration();if(r){await r.update().catch(()=>{});if(r.waiting){r.waiting.postMessage("skipWaiting");await new Promise(ok=>{navigator.serviceWorker.addEventListener("controllerchange",ok,{once:true});setTimeout(ok,2000)})}}}catch(e){}location.reload()}
 function locUI(){const b=$("#loc");b.textContent=locMode===2?"🎯 Following":locMode===1?"📍 Live":"📍 Locate";b.classList.toggle("on",locMode>0)}
 function onFix(p){const c=p.coords;meFix={lat:c.latitude,lng:c.longitude,acc:c.accuracy};const ll=[meFix.lat,meFix.lng];
  if(!meDot){meAcc=L.circle(ll,{radius:c.accuracy,color:"#1a73e8",weight:1,fillOpacity:.12,interactive:false}).addTo(map);meDot=L.circleMarker(ll,{radius:9,color:"#fff",weight:3,fillColor:"#1a73e8",fillOpacity:1,interactive:false}).addTo(map);if(locMode===2)map.setView(ll,Math.max(map.getZoom(),15))}
@@ -429,12 +441,12 @@ function applyBase(){BASES.forEach(b=>{b.day.remove();b.night.remove()});const b
 const BIZRX=/\b(inc|llc|ltd|corp|co|company|club|bank|hotel|resort|school|academy|medical|health|center|centre|dental|dentist|clinic|hospital|golf|shop|store|boutique|motorcars|motors|apple|ups|hoa|office|management|marriott|hyatt|restaurant|cafe|salon|spa|church|studio|gallery|realty|insurance|law|attorney|design|designs|tile|audio|wearhouse|bedrosians|association|properties|partners|group|services|solutions|market|pharmacy|bar|grill|fitness|gym|plaza|mall|institute|foundation)\b/i;
 function isBiz(s){if(s.biz===true||s.biz===false)return s.biz;return !!(s.cutoff||s.known||/\b(ste|suite|bldg|building|pmb)\b/i.test(s.addr||"")||BIZRX.test(s.name||""))}
 function setBiz(id,v){const s=byId(id);snap();if(v==="auto")delete s.biz;else s.biz=v==="1";save();render()}
-const MODES={fast:{n:"Fastest",ic:"⚡",e:0,w:()=>0,d:"Shortest total drive time. Closing times still count."},
- biz:{n:"Business first",ic:"🏢",e:1,w:s=>(isBiz(s)?1:0)+(s.pr==="A"?.5:s.pr==="B"?.2:0),d:"Businesses (they close) come earlier and homes later. Closing times are respected."},
- color:{n:"Color order",ic:"🎨",e:8,w:s=>s.pr==="A"?1:s.pr==="B"?.5:0,d:"Red Priority A first, then orange B, then blue C. A tight closing time can still override."}};
+const MODES={fast:{n:"Fastest",ic:"⚡",e:0,w:()=>0,d:"Shortest total drive time. Only closing times and the Bighorn/74-before-Indian Wells rule can change the order. Color tags are ignored."},
+ biz:{n:"Business first",ic:"🏢",e:1,w:s=>(isBiz(s)?1:0)+(s.pr==="A"?.5:s.pr==="B"?.2:0),d:"Businesses (they close) come earlier and homes later. Closing times are respected. Color tags are ignored."},
+ color:{n:"Priority A/B/C",ic:"⭐",e:8,w:s=>s.pr==="A"?1:s.pr==="B"?.5:0,d:"Priority A stops first, then B, then C (set priority in a stop's Edit section). Color tags are ignored. A tight closing time can still override."}};
 function modeUI(){const k=S.mode||"fast",m=MODES[k];$("#mode").textContent=m.ic+" "+m.n;document.querySelectorAll("[data-m]").forEach(b=>b.classList.toggle("on",b.dataset.m===k));$("#modeInfo").textContent=m.d}
 function setMode(k,run){S.mode=k;save();modeUI();if(run)optimize()}
-function cycleMode(){const ks=Object.keys(MODES);setMode(ks[(ks.indexOf(S.mode||"fast")+1)%ks.length],true)}
+function cycleMode(){const ks=Object.keys(MODES),k=ks[(ks.indexOf(S.mode||"fast")+1)%ks.length];setMode(k,false);toast("Mode: "+MODES[k].n+". Tap ⚡ Optimize to reorder. "+MODES[k].d)}
 function cycleBase(){bIdx=(bIdx+1)%BASES.length;applyBase()}
 function toggleView(){view=view==='cur'?'orig':'cur';render()}
 // ---------- import / export ----------
@@ -442,6 +454,9 @@ function dl(name,text,type){const a=document.createElement('a');a.href=URL.creat
 const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"',toCSV=(rows,c)=>[c.join(',')].concat(rows.map(r=>c.map(k=>q(r[k])).join(','))).join('\n');
 function exportDb(f){const rows=Object.values(S.db);f==='json'?dl('business-priorities.json',JSON.stringify({db:S.db},null,1),'application/json'):dl('business-priorities.csv',toCSV(rows,['name','addr','city','zip','pr','why','notes','confirmed','updated','cutoff','lat','lng']),'text/csv')}
 function exportStops(){dl('stops-'+S.day+'.csv',toCSV(stops().map(s=>({...s,priority:s.pr,status:s.st,color:tagOf(s)})),['n','name','addr','city','zip','priority','status','notes','cutoff','lat','lng','color','ver']),'text/csv')}
+function shareBiz(){const name='rcc-business-list-'+today()+'.json',txt=JSON.stringify({rcc:'business-list',exported:today(),db:S.db||{},locs:S.locs||{},colorLabels:S.colorLabels||{}},null,1);
+ let f=null;try{f=new File([txt],name,{type:'application/json'})}catch(e){}
+ if(f&&navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:'RCC business list'}).catch(e=>{if(e&&e.name!=='AbortError')dl(name,txt,'application/json')});else{dl(name,txt,'application/json');toast('Business list downloaded: '+Object.keys(S.db||{}).length+' businesses')}}
 function exportAll(){dl('route-backup-'+S.day+'.json',JSON.stringify(S),'application/json')}
 function readFile(inp,cb){inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{cb(String(r.result),f.name);inp.value=''};r.readAsText(f)}}
 readFile($('#fileStops'),t=>{$('#paste').value=t;toast('File loaded. Review, then tap Add stops.')});
@@ -453,7 +468,7 @@ readFile($('#fileDb'),(t,n)=>{let arr=[];try{if(/\.json$/i.test(n)){const j=JSON
  let c=0;arr.forEach(b=>{if(!b||!b.name)return;const p=String(b.pr||b.priority||'C').trim().toUpperCase().slice(-1);saveBiz({...b,pr:'ABC'.includes(p)?p:'C'});c++});save();dbList();toast(c+' businesses imported. Re-add or refresh stops to match them.')});
 function dbList(){const v=Object.entries(S.db);$('#dblist').innerHTML=v.length?v.map(([k,b])=>`<div class="dbrow"><div><b>${esc(b.name)}</b> <small>${esc(b.zip)} ${b.confirmed?'· confirmed':'· needs verification'}${b.why?' · '+esc(b.why):''}</small></div><select onchange="S.db['${esc(k).replace(/'/g,"\\'")}'].pr=this.value;S.db['${esc(k).replace(/'/g,"\\'")}'].updated=today();save()">${['A','B','C'].map(p=>`<option${b.pr===p?' selected':''}>${p}</option>`).join('')}</select><button onclick="delBiz('${esc(k).replace(/'/g,"\\'")}')">✕</button></div>`).join(''):'<small>No businesses saved yet.</small>'}
 function delBiz(k){delete S.db[k];save();dbList()}
-{let pr=null;try{pr=localStorage.getItem("dhl_cc_dark")}catch(e){}setDark(pr===null?matchMedia("(prefers-color-scheme: dark)").matches:pr==="1",false)}{let nh=null;try{nh=localStorage.getItem("dhl_cc_nohead")}catch(e){}setNoHead(nh==="1",false)}if(S.plan){startPt=S.plan.s||null;endPt=S.plan.e||null;$("#sIn").value=startPt?startPt.label:"";$("#eIn").value=endPt?endPt.label:""}modeUI();initMap();locInfo();render(true);if(stops().some(s=>s.lat==null&&!s.tried))geocode();
+{let t=null;try{t=localStorage.getItem("dhl_cc_theme")}catch(e){}setTheme(t,false)}{let nh=null;try{nh=localStorage.getItem("dhl_cc_nohead")}catch(e){}setNoHead(nh==="1",false)}if(S.plan){startPt=S.plan.s||null;endPt=S.plan.e||null;$("#sIn").value=startPt?startPt.label:"";$("#eIn").value=endPt?endPt.label:""}modeUI();initMap();locInfo();render(true);if(stops().some(s=>s.lat==null&&!s.tried))geocode();
 
 // Installable app: offline helper (only works on https / GitHub Pages; ignored when opened as a file)
 if('serviceWorker' in navigator&&window.isSecureContext&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
