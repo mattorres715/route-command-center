@@ -68,6 +68,7 @@ body.dark .t.d,body.dark .t.c{background:#3b2a54;color:#d7aefb}body.dark .t.s{ba
 section.box{background:var(--card);border-radius:18px;padding:14px;margin-bottom:12px;display:grid;gap:10px;box-shadow:0 1px 2px rgba(60,64,67,.3)}
 section.box h2{font-size:17px;margin:0;font-weight:600}small{color:var(--mut)}label{font-size:13px;font-weight:600;color:var(--mut);display:block}
 .dbrow{display:grid;grid-template-columns:1fr 70px 46px;gap:6px;align-items:center}.dbrow button{padding:0;min-height:44px}
+.osm{border:1px solid var(--ac);background:var(--navon);border-radius:14px;padding:10px 12px;display:grid;gap:8px}.osm .row button{min-height:48px}.osmc{font-size:11px}
 #toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#323232;color:#fff;padding:12px 18px;border-radius:8px;z-index:2000;max-width:92%;box-shadow:var(--sh);font-weight:500}body.dark #toast{background:#e8eaed;color:#202124}#toast[hidden]{display:none}
 #mode{top:124px;left:12px}button[data-m].on{background:var(--ac);color:var(--onac)}
 @media(max-width:799px){main{grid-template-columns:1fr}#mapwrap,#side,#stops,#tools{display:none}
@@ -118,6 +119,10 @@ section.box h2{font-size:17px;margin:0;font-weight:600}small{color:var(--mut)}la
 <div id="dblist"></div>
 <div class="row"><button onclick="exportDb('csv')">Export CSV</button><button onclick="exportDb('json')">Export JSON</button><button onclick="$('#fileDb').click()">Import</button></div>
 <input type="file" id="fileDb" accept=".csv,.json" hidden></section>
+<section class="box"><h2>Business suggestions</h2>
+<label><input type="checkbox" id="osmOn" checked onchange="osmToggle(this.checked)" style="width:auto;min-height:0"> Suggest businesses from OpenStreetMap</label>
+<small>Free. Checks each stop's location for a named business nearby and asks you on the stop card ("Looks like …? Yes / Not this"). Nothing is added to the map, and nothing changes until you tap Yes. Hours come from OpenStreetMap and may be out of date. Only stop locations are sent, never names.</small>
+<button onclick="osmRun(true)">🔎 Check stops now</button><small id="osmInfo"></small></section>
 <section class="box"><h2>Saved locations</h2><small id="locinfo"></small><br><small>Separate from the business list. When you pin a stop on the map or paste coordinates, that exact address (same house number, street and ZIP) uses your pin every time after.</small>
 <div class="row"><button onclick="exportLocs('csv')">Export CSV</button><button onclick="exportLocs('json')">Export JSON</button><button onclick="$('#fileLocs').click()">Import</button></div>
 <input type="file" id="fileLocs" accept=".csv,.json" hidden></section>
@@ -280,7 +285,7 @@ async function geocode(){if(gq)return;gq=true;censusFail=0;let fail=false;
  for(const s of stops()){if(s.lat!=null||s.tried||!s.addr)continue;s.tried=true;
   try{await geoOne(s)}catch(e){s.tried=false;fail=true;break}
   if(s.ver&&/ agree \(/.test(s.src||""))locSet(s,"agree");if(s.ver)learnLoc(s);save();render()}
- gq=false;const t=stops(),bad=t.filter(s=>s.lat==null||!s.ver).length,nol=t.filter(s=>s.lat==null).length,ag=t.filter(s=>/agree/.test(s.src||"")).length,es=t.filter(s=>!s.ver&&/estimate/i.test(s.src||"")).length,wn=t.filter(s=>s.warn).length;
+ gq=false;osmSoon();const t=stops(),bad=t.filter(s=>s.lat==null||!s.ver).length,nol=t.filter(s=>s.lat==null).length,ag=t.filter(s=>/agree/.test(s.src||"")).length,es=t.filter(s=>!s.ver&&/estimate/i.test(s.src||"")).length,wn=t.filter(s=>s.warn).length;
  toast(fail?"Address lookup failed (offline or blocked). Tap Retry address lookups.":`${t.length-bad} of ${t.length} located exactly (${ag} confirmed by two sources); ${bad} need your check${nol?` (${nol} not found)`:""}${es?`, ${es} are estimates`:""}${wn?`, ${wn} flagged for a mismatch`:""}.`)}
 function recheckAll(){if(!confirm("Re-search every stop you haven't pinned or confirmed yourself? Hand-placed pins from before this update will be searched again too."))return;snap();stops().forEach(s=>{if(!s.pin){s.lat=null;s.lng=null;s.ver=false;s.tried=false;s.warn="";s.src=""}});RM={};routeLine=null;save();render();geocode()}
 async function reAddr(id){const s=byId(id),v=$("#caddr").value.trim();if(!v)return;snap();const cm=v.match(/(-?\d{1,3}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/);if(cm){s.lat=+cm[1];s.lng=+cm[2];s.ver=true;s.pin=true;s.src="Your pasted coordinates";s.warn="";locSet(s,"pasted");locInfo();RM={};routeLine=null;learnLoc(s);save();render(true);return toast("Pin set from those coordinates")}s.addr=v;s.lat=null;s.lng=null;s.ver=false;s.tried=false;RM={};routeLine=null;save();render();toast("Searching…");censusFail=0;
@@ -334,7 +339,7 @@ function renderList(){const q=norm($('#q').value),fs=$('#fs').value,fp=$('#fp').
  $('#list').innerHTML=chip+(h||(stops().length?'<div class="empty"><p>No stops match your filters.</p></div>':'<div class="empty"><b>No stops yet</b><p>Load your route to get started.</p><button class="pri" onclick="show(\'tools\')">Add stops</button></div>'))}
 function cardR(){const el=$('#card'),s=byId(sel);if(!s){el.hidden=true;return}el.hidden=false;const i=ordered().indexOf(s)+1;
  el.innerHTML=`<div class="chead"><b>#${i} ${esc(s.name)}</b><button class="x" onclick="sel=null;render()">✕</button></div>
- <div>${esc(addrOf(s))||'<i>No address</i>'}</div><div class="tags">${tags(s)}</div>${s.src?`<small>Located by: ${esc(s.src)}${s.match?" · matched “"+esc(s.match)+"”":""}</small>`:''}${s.why?`<div class="why">Why it matters: ${esc(s.why)}</div>`:''}${s.notes?`<div>Notes: ${esc(s.notes)}</div>`:''}
+ <div>${esc(addrOf(s))||'<i>No address</i>'}</div><div class="tags">${tags(s)}</div>${s.src?`<small>Located by: ${esc(s.src)}${s.match?" · matched “"+esc(s.match)+"”":""}</small>`:''}${osmBox(s)}${s.why?`<div class="why">Why it matters: ${esc(s.why)}</div>`:''}${s.notes?`<div>Notes: ${esc(s.notes)}</div>`:''}
  <div class="row"><button class="ok" onclick="act('${s.id}','done')">✔ Done</button><button onclick="act('${s.id}','skip')">Skip</button><button class="warn" onclick="act('${s.id}','attn')">Needs attention</button></div>
  <div class="row"><button onclick="mv('${s.id}',-1)">▲ Earlier</button><button onclick="mv('${s.id}',1)">▼ Later</button><button onclick="mkNext('${s.id}')">Make next</button></div>
  <div class="row">${s.addr||s.lat!=null?`<button class="nav" onclick="navTo('${s.id}')">📍 Navigate</button>`:''}
@@ -415,11 +420,14 @@ function applyBackup(t){try{const j=JSON.parse(t);Object.assign(S.db,j.db||{});O
  save();render(true);toast(j.days?"Backup restored for "+S.day:"Business list added: "+Object.keys(j.db||{}).length+" businesses, "+Object.keys(j.locs||{}).length+" saved pins")}catch(e){toast("That isn't a valid backup")}}
 function copyBackup(){const t=JSON.stringify(S);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Backup copied. Paste it into Notes, an email or a message to yourself."),()=>{$("#bk").value=t;$("#bk").select();toast("Copy the text from the box below.")})}
 function restoreText(){applyBackup($("#bk").value)}
-function navTo(id){const s=byId(id);if(!s)return;const a=[s.addr,s.city,"CA",s.zip].filter(Boolean).join(", "),dest=s.addr?a:(s.lat!=null?s.lat+","+s.lng:"");
- if(!dest)return toast("No address to navigate to");
- try{if(navigator.clipboard)navigator.clipboard.writeText(dest).catch(()=>{})}catch(e){}
- window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(dest)+"&travelmode=driving","_blank");
- toast("Address copied: "+dest)}
+// Google Maps turn-by-turn (free, no key). Uses your verified pin when there is one, otherwise the address.
+function navUrl(s){const a=[s.addr,s.city,"CA",s.zip].filter(Boolean).join(", "),c=s.lat!=null?(+s.lat).toFixed(6)+","+(+s.lng).toFixed(6):"";
+ const d=c&&(s.ver||!s.addr)?c:s.addr?encodeURIComponent(a):"";return d?"https://www.google.com/maps/dir/?api=1&destination="+d+"&travelmode=driving":""}
+function navTo(id){const s=byId(id);if(!s)return;const u=navUrl(s),a=[s.addr,s.city,"CA",s.zip].filter(Boolean).join(", ")||(s.lat+","+s.lng);
+ if(!u)return toast("No address to navigate to");
+ try{if(navigator.clipboard)navigator.clipboard.writeText(a).catch(()=>{})}catch(e){}
+ window.open(u,"_blank");
+ toast("Opening Google Maps · address copied: "+a)}
 function setNoHead(on,persist){document.body.classList.toggle("nohead",on);try{if(persist)localStorage.setItem("dhl_cc_nohead",on?"1":"0")}catch(e){}setTimeout(()=>map&&map.invalidateSize(),80)}
 function toggleHead(){setNoHead(!document.body.classList.contains("nohead"),true)}
 // Refresh button: save, pick up a newer app version if one is waiting, then reload. (Pull-down-to-refresh is turned off in CSS.)
@@ -468,7 +476,71 @@ readFile($('#fileDb'),(t,n)=>{let arr=[];try{if(/\.json$/i.test(n)){const j=JSON
  let c=0;arr.forEach(b=>{if(!b||!b.name)return;const p=String(b.pr||b.priority||'C').trim().toUpperCase().slice(-1);saveBiz({...b,pr:'ABC'.includes(p)?p:'C'});c++});save();dbList();toast(c+' businesses imported. Re-add or refresh stops to match them.')});
 function dbList(){const v=Object.entries(S.db);$('#dblist').innerHTML=v.length?v.map(([k,b])=>`<div class="dbrow"><div><b>${esc(b.name)}</b> <small>${esc(b.zip)} ${b.confirmed?'· confirmed':'· needs verification'}${b.why?' · '+esc(b.why):''}</small></div><select onchange="S.db['${esc(k).replace(/'/g,"\\'")}'].pr=this.value;S.db['${esc(k).replace(/'/g,"\\'")}'].updated=today();save()">${['A','B','C'].map(p=>`<option${b.pr===p?' selected':''}>${p}</option>`).join('')}</select><button onclick="delBiz('${esc(k).replace(/'/g,"\\'")}')">✕</button></div>`).join(''):'<small>No businesses saved yet.</small>'}
 function delBiz(k){delete S.db[k];save();dbList()}
-{let t=null;try{t=localStorage.getItem("dhl_cc_theme")}catch(e){}setTheme(t,false)}{let nh=null;try{nh=localStorage.getItem("dhl_cc_nohead")}catch(e){}setNoHead(nh==="1",false)}if(S.plan){startPt=S.plan.s||null;endPt=S.plan.e||null;$("#sIn").value=startPt?startPt.label:"";$("#eIn").value=endPt?endPt.label:""}modeUI();initMap();locInfo();render(true);if(stops().some(s=>s.lat==null&&!s.tried))geocode();
+// ---------- business suggestions from OpenStreetMap (shown on the stop card only, never on the map) ----------
+// Only the stop's coordinates are sent (no names). Results are cached in a separate key so they never touch S.
+const OSMKEY='dhl_cc_osm',OVP=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter'],OSMR=200;
+let OSMS=(()=>{try{const o=JSON.parse(localStorage.getItem(OSMKEY)||'{}');return o&&typeof o==='object'?o:{}}catch(e){return{}}})();
+if(OSMS.on===undefined)OSMS.on=true;OSMS.q=OSMS.q||{};OSMS.no=OSMS.no||{};
+let osmBusy=false,osmAgain=false,osmTmr=null,osmWait=0;
+function osmSave(){try{const ks=Object.keys(OSMS.q);if(ks.length>600)ks.sort((a,b)=>OSMS.q[a].t-OSMS.q[b].t).slice(0,ks.length-600).forEach(k=>delete OSMS.q[k]);localStorage.setItem(OSMKEY,JSON.stringify(OSMS))}catch(e){}}
+const osmK=s=>(+s.lat).toFixed(4)+','+(+s.lng).toFixed(4),osmNoK=s=>osmK(s)+'|'+norm(s.name);
+const OSMSTOP=new Set('inc llc ltd corp co company the of at and us usa store shop resort hotel spa village center centre plaza desert palm wells indian mirage rancho springs la quinta el paseo highway hwy dr drive ln lane st street ave rd suite ste unit apt attn llp pc group services'.split(' '));
+const osmTok=(t,drop)=>norm(t).split(' ').filter(w=>w.length>2&&!OSMSTOP.has(w)&&!drop.has(w)&&!/^\d+$/.test(w));
+const OSMOK={tourism:/^(hotel|motel|resort|guest_house|hostel|museum|gallery|attraction|apartment|chalet)$/,leisure:/^(resort|fitness_centre|sports_centre|golf_course|spa|dance|bowling_alley|water_park)$/,amenity:/^(?!(?:parking|parking_entrance|parking_space|bench|fountain|toilets|shelter|waste_basket|waste_disposal|bicycle_parking|motorcycle_parking|post_box|atm|vending_machine|drinking_water|charging_station|telephone|recycling|clock|grit_bin|letter_box|hunting_stand|bbq|loading_dock|taxi|bus_station|car_sharing|compressed_air|water_point)$).*/};
+function osmKind(t){for(const k of ['shop','office','craft','healthcare','amenity','tourism','leisure'])if(t[k]&&(!OSMOK[k]||OSMOK[k].test(t[k])))return k+'='+t[k];return''}
+// Best plausible match for a stop, or null. Never guesses: name overlap, or exact house number, or one lone place right at the pin.
+function osmBest(s){if(s.lat==null)return null;const c=OSMS.q[osmK(s)];if(!c||!c.e||!c.e.length)return null;
+ const drop=new Set(norm([s.addr,s.city].join(' ')).split(' ')),st=osmTok(s.name,drop),num=(String(s.addr||'').match(/^\s*(\d+)/)||[])[1]||'',street=osmTok(String(s.addr||'').replace(/^\s*\d+\s*/,''),new Set());
+ const cs=c.e.map(e=>({...e,d:hav(s,{lat:e.la,lng:e.lo})*1000})).filter(e=>e.d<=OSMR);if(!cs.length)return null;
+ let best=null;if(st.length)cs.forEach(e=>{const et=osmTok(e.n,drop),hit=st.filter(w=>et.some(x=>x===w||(w.length>4&&x.length>4&&(x.startsWith(w)||w.startsWith(x)))));const sc=hit.length/Math.min(st.length,et.length||1);
+  if(hit.length&&hit.some(w=>w.length>=4)&&sc>=.5&&(!best||sc>best.sc||(sc===best.sc&&e.d<best.d)))best={...e,sc,why:'name'}});
+ if(best)return best;
+ const bizName=BIZRX.test(s.name||'')||(s.biz===true&&!!s.name&&s.name!==s.addr);if(bizName)return null; // a business-named stop that matches nothing: don't swap in a neighbour
+ if(num){const h=cs.filter(e=>e.d<=40&&e.hn&&String(e.hn).split(/[;,]/).map(x=>x.trim()).includes(num)&&(!e.sn||!street.length||osmTok(e.sn,new Set()).some(w=>street.includes(w))));if(h.length===1)return {...h[0],why:'address'}}
+ const unit=/(#|\b(ste|suite|unit|apt|bldg|building|pmb|space|spc)\b)/i.test(s.addr||''),close=cs.filter(e=>e.d<=40);
+ if(!unit&&close.length===1&&close[0].d<=25)return {...close[0],why:'nearby'};return null}
+// Opening hours for one weekday. Only simple formats; anything else returns null so the raw text is shown instead.
+function osmHours(oh,dateStr){oh=String(oh||'').trim();if(!oh)return null;if(/^24\/7$/.test(oh))return{h24:true};
+ const DN=['Su','Mo','Tu','We','Th','Fr','Sa'],ORD=['Mo','Tu','We','Th','Fr','Sa','Su'],d=new Date(dateStr+'T12:00:00'),wd=DN[d.getDay()];let res=undefined;
+ for(let r of oh.split(';')){r=r.trim();if(!r)continue;if(/^PH\b/.test(r))continue;
+  const m=r.match(/^(?:((?:[A-Z][a-z](?:-[A-Z][a-z])?)(?:,(?:[A-Z][a-z](?:-[A-Z][a-z])?))*)\s+)?(off|closed|\d\d:\d\d-\d\d:\d\d(?:\s*,\s*\d\d:\d\d-\d\d:\d\d)*)$/);if(!m)return null;
+  let on=!m[1];if(m[1])for(const part of m[1].split(',')){const [a,b]=part.split('-');const i=ORD.indexOf(a),j=b?ORD.indexOf(b):i;if(i<0||j<0)return null;for(let k=i;;k=(k+1)%7){if(ORD[k]===wd)on=true;if(k===j)break}}
+  if(!on)continue;if(/off|closed/.test(m[2])){res={closed:true};continue}
+  const iv=m[2].split(',').map(x=>x.trim().split('-').map(mins));res=iv.some(([a,b])=>b<=a||b>=1439)?{late:true}:{close:f12(Math.max(...iv.map(x=>x[1]))),cut:String(Math.floor(Math.max(...iv.map(x=>x[1]))/60)).padStart(2,'0')+':'+String(Math.max(...iv.map(x=>x[1]))%60).padStart(2,'0')}}
+ return res===undefined?{none:true}:res}
+function osmSug(s){if(!OSMS.on||!s||s.lat==null||!open(s)||s.known||s.osm||OSMS.no[osmNoK(s)]||findDb(s.name,s.zip))return null;return osmBest(s)}
+function osmDayName(){return S.day===today()?'today':'on '+new Date(S.day+'T12:00:00').toLocaleDateString('en-US',{weekday:'short'})}
+function osmBox(s){const b=osmSug(s);if(!b)return'';const h=osmHours(b.oh,S.day),dn=osmDayName();
+ const hrs=!b.oh?' · no hours listed':!h?` · hours: ${esc(b.oh)}`:h.h24?' · open 24/7':h.closed?` · closed ${dn}`:h.late?` · open late ${dn}`:h.none?` · hours: ${esc(b.oh)}`:` · closes ${h.close} ${dn}`;
+ return `<div class="osm"><div><b>Looks like ${esc(b.n)}</b> <small>(OpenStreetMap, unverified${b.why==='name'?'':b.why==='address'?', same house number':', right at your pin'})</small>${hrs}</div><div class="row"><button class="ok" onclick="osmYes('${s.id}')">✓ Yes, save</button><button onclick="osmNo('${s.id}')">✕ Not this</button></div><small class="osmc">Business suggestions © OpenStreetMap contributors</small></div>`}
+function osmYes(id){const s=byId(id),b=osmSug(s);if(!b)return;snap();const h=osmHours(b.oh,S.day),cut=h&&h.cut||'';
+ const nm=(b.why==='name'&&s.name&&s.name!==s.addr)?s.name:b.n,tr=!!(s.pin||/agree/.test(s.src||''));
+ saveBiz({name:nm,addr:s.addr,city:s.city,zip:s.zip,pr:s.pr,cutoff:cut,notes:(b.oh?'Hours from OpenStreetMap: '+b.oh:'Matched on OpenStreetMap, no hours listed')+(nm!==b.n?' (listed there as '+b.n+')':''),lat:tr?s.lat:null,lng:tr?s.lng:null,trust:tr,confirmed:true});
+ if(!s.cutoff&&cut)s.cutoff=cut;s.known=true;s.biz=true;s.osm={st:'yes',n:b.n};save();render();toast('Saved '+nm+' to your business list'+(cut&&s.cutoff===cut?' · closes '+f12(mins(cut)):''))}
+function osmNo(id){const s=byId(id);if(!s)return;OSMS.no[osmNoK(s)]=1;osmSave();render();toast("OK, won't suggest a business for this stop again")}
+function osmInfo(m){const el=$('#osmInfo');if(el)el.textContent=m||''}
+function osmUI(){const c=$('#osmOn');if(c)c.checked=!!OSMS.on}
+function osmToggle(on){OSMS.on=!!on;osmSave();render();osmInfo(on?'On. Stops are checked in the background.':'Off. No lookups are made.');if(on)osmSoon(500)}
+function osmSoon(ms){clearTimeout(osmTmr);osmTmr=setTimeout(()=>osmRun(false),ms==null?2500:ms)}
+const osmElig=s=>s.lat!=null&&open(s)&&!s.known&&!s.osm&&!OSMS.no[osmNoK(s)]&&!findDb(s.name,s.zip);
+async function osmFetch(q){for(const u of OVP)for(let tr=0;tr<2;tr++){const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),90000);
+  try{const r=await fetch(u,{method:'POST',body:'data='+encodeURIComponent(q),headers:{'Content-Type':'application/x-www-form-urlencoded'},referrerPolicy:'strict-origin-when-cross-origin',signal:ac.signal});clearTimeout(tm);
+   if(r.status===429||r.status===406)return null;if(r.ok){const j=await r.json();if(j&&Array.isArray(j.elements))return j}if(tr===0&&r.status>=502){await sleep(10000);continue}}catch(e){clearTimeout(tm)}await sleep(1500);break}return null}
+async function osmRun(manual){if(!OSMS.on){if(manual)toast('Turn on business suggestions first');return}if(osmBusy){osmAgain=true;return}
+ if(location.protocol==='file:'){osmInfo('Business suggestions only work when RCC is opened from its website (GitHub Pages).');if(manual)toast('Open RCC from its website to use this.');return}if(!manual&&Date.now()<osmWait)return;if(navigator.onLine===false){osmInfo('Offline. Business suggestions skipped for now.');if(manual)toast('Offline. Try again when you have signal.');return}
+ const now=Date.now(),seen=new Set(),todo=[];stops().filter(osmElig).forEach(s=>{const k=osmK(s),c=OSMS.q[k];if(seen.has(k)||(c&&now-c.t<30*864e5))return;seen.add(k);todo.push({k,lat:+s.lat,lng:+s.lng})});
+ const before=new Set(stops().filter(s=>osmSug(s)).map(s=>s.id));osmBusy=true;let ok=0,fail=false;
+ try{for(let i=0;i<todo.length;i+=10){const g=todo.slice(i,i+10);osmInfo('Checking '+Math.min(i+10,todo.length)+' of '+todo.length+' locations…');
+   const q='[out:json][timeout:60];('+g.map(p=>`nwr(around:${OSMR},${p.lat},${p.lng})["name"][~"^(shop|amenity|office|tourism|craft|healthcare|leisure)$"~"."];`).join('')+');out center tags;';
+   const j=await osmFetch(q);if(!j){fail=true;break}
+   const els=j.elements.map(e=>{const t=e.tags||{},la=e.lat!=null?e.lat:e.center&&e.center.lat,lo=e.lon!=null?e.lon:e.center&&e.center.lon;const k=osmKind(t);return k&&t.name&&la!=null?{id:e.type[0]+e.id,n:t.name,la,lo,k,hn:t['addr:housenumber']||'',sn:t['addr:street']||'',oh:t.opening_hours||''}:null}).filter(Boolean);
+   g.forEach(p=>{OSMS.q[p.k]={t:Date.now(),e:els.filter(e=>hav(p,{lat:e.la,lng:e.lo})*1000<=OSMR)};ok++});osmSave();if(i+10<todo.length)await sleep(1500)}}
+ finally{osmBusy=false}
+ if(fail){osmWait=Date.now()+5*6e4;osmInfo('Could not reach OpenStreetMap just now'+(ok?' (checked '+ok+' locations)':'')+'. Will try again later.');if(manual)toast("Couldn't reach OpenStreetMap right now. Try again in a few minutes.")}
+ const found=stops().filter(s=>osmSug(s)),fresh=found.filter(s=>!before.has(s.id));if(!fail)osmInfo(todo.length||manual?'Checked. '+found.length+' possible business'+(found.length===1?'':'es')+' waiting for you to verify.':'');
+ render();if(fresh.length||(manual&&found.length))toast('Found '+found.length+' possible business'+(found.length===1?'':'es')+' — open a stop to verify.');else if(manual&&!fail)toast('No new businesses found.');
+ if(osmAgain){osmAgain=false;osmSoon(1000)}}
+{let t=null;try{t=localStorage.getItem("dhl_cc_theme")}catch(e){}setTheme(t,false)}{let nh=null;try{nh=localStorage.getItem("dhl_cc_nohead")}catch(e){}setNoHead(nh==="1",false)}if(S.plan){startPt=S.plan.s||null;endPt=S.plan.e||null;$("#sIn").value=startPt?startPt.label:"";$("#eIn").value=endPt?endPt.label:""}modeUI();initMap();locInfo();osmUI();render(true);if(stops().some(s=>s.lat==null&&!s.tried))geocode();else osmSoon(4000);
 
 // Installable app: offline helper (only works on https / GitHub Pages; ignored when opened as a file)
 if('serviceWorker' in navigator&&window.isSecureContext&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
