@@ -1,5 +1,5 @@
 // Route Command Center offline helper. Bump VERSION when you upload a new index.html.
-const VERSION='rcc-v3';
+const VERSION='rcc-v4';
 const SHELL=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png',
  'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css',
  'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'];
