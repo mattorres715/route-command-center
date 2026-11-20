@@ -1,5 +1,6 @@
 // Route Command Center offline helper. Bump VERSION when you upload a new index.html.
-const VERSION='rcc-v4';
+// stops/today.csv is not part of the shell: it is fetched live (network only) on each "Load today's stops".
+const VERSION='rcc-v5';
 const SHELL=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png',
  'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css',
  'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'];
@@ -12,6 +13,8 @@ self.addEventListener('fetch',e=>{
   const u=new URL(r.url);
   // OpenStreetMap business lookups (Overpass) are never cached or answered from storage: network only.
   if(/(^|\.)overpass-api\.de$|overpass\.kumi\.systems$/.test(u.hostname))return;
+  // Published daily stop list. Never cache it (including the ?t= cache-buster); the browser fetches it from the network.
+  if(/\/stops\/today\.csv$/i.test(u.pathname))return;
   // App page: try the internet first so updates show up, fall back to the saved copy offline.
   if(r.mode==='navigate'){e.respondWith(fetch(r).then(x=>{const c=x.clone();caches.open(VERSION).then(k=>k.put('index.html',c));return x}).catch(()=>caches.match('index.html')));return}
   // App files and Leaflet: saved copy first.

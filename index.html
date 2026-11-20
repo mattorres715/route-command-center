@@ -87,6 +87,7 @@ section.box h2{font-size:17px;margin:0;font-weight:600}small{color:var(--mut)}la
 <div id="mapwrap"><div id="map"></div><button id="next" class="fab" onclick="goNext()">▶ Next stop</button><button id="fit" class="fab" onclick="drawMap(true)">⤢ All</button><button id="opt" class="fab" onclick="optimize()">⚡ Optimize</button><button id="lyr" class="fab" onclick="cycleBase()">🗺 Streets</button><button id="loc" class="fab" onclick="locToggle()">📍 Locate</button><button id="mode" class="fab" onclick="cycleMode()">⚡ Fastest</button><div id="card" hidden></div></div>
 <div id="side">
 <div id="stops">
+<div class="row"><button class="pri" onclick="loadToday()">Load today's stops</button></div>
 <div class="grid" id="stats"></div><div class="bar"><i id="barfill"></i></div><div id="etac" class="etac" hidden></div>
 <div class="row"><button class="pri" onclick="goNext()">▶ Next stop</button><button class="warn" onclick="optimize()">⚡ Optimize route</button></div>
 <div class="filters"><input id="q" placeholder="Search name, address, notes" oninput="renderList()">
@@ -96,7 +97,9 @@ section.box h2{font-size:17px;margin:0;font-weight:600}small{color:var(--mut)}la
 <div id="colorbar"></div><div id="list"></div></div>
 <div id="tools">
 <section class="box"><h2>Add stops</h2>
-<small>One stop per line: Name, Street, City, ZIP, Notes, Closes, Lat, Lng (last three optional). A header row also works, and may include an optional color column (red, orange, yellow, green, blue or purple).</small>
+<button class="pri" onclick="loadToday()">Load today's stops</button>
+<small>Loads the published list for today. If this day already has stops, you'll be asked before they are replaced.</small>
+<small>Or add them yourself, one stop per line: Name, Street, City, ZIP, Notes, Closes, Lat, Lng (last three optional). A header row also works, and may include an optional color column (red, orange, yellow, green, blue or purple).</small>
 <textarea id="paste" rows="6" placeholder="Acme Dental, 120 Main St, Phoenix, 85004, back door"></textarea>
 <div class="row"><button class="pri" onclick="addFromBox()">Add stops</button><button onclick="$('#fileStops').click()">Load CSV file</button></div>
 <input type="file" id="fileStops" accept=".csv,.txt" hidden></section>
@@ -198,11 +201,21 @@ function parseStops(t){const rows=parseCSV(t);if(!rows.length)return[];
   if(/^[A-Za-z]{2}$/.test(r[3]||"")&&/^\d{5}/.test(r[4]||""))r.splice(3,1);
   return{name:r[0]||"",addr:r[1]||"",city:r[2]||"",zip:r[3]||"",notes:r[4]||"",cutoff:r[5]||"",lat:lat||r[6]||"",lng:lng||r[7]||""}})}
 function addFromBox(){const rows=parseStops($('#paste').value);if(!rows.length)return toast('Nothing to add');addRows(rows);$('#paste').value='';show('stops')}
-function addRows(rows){snap();const st=stops();let known=0,fresh=0;
+function addRows(rows,opt){snap();if(opt&&opt.replace){D().stops=[];sel=null;routeLine=null;RM={}}const st=stops();let known=0,fresh=0;
  rows.forEach(r=>{if(!r.name&&!r.addr)return;const b=findDb(r.name,r.zip);b?known++:fresh++;
   const s={id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),n:st.length+1,name:r.name||'(no name)',addr:r.addr,city:r.city,zip:zip5(r.zip)||r.zip,notes:r.notes,cutoff:normT(r.cutoff)||(b&&b.cutoff)||'',pr:b?b.pr:'C',known:!!b,why:b?b.why:'',st:'todo',lat:null,lng:null,ver:false};
   if(b&&b.trust&&b.lat!=null&&b.addr&&norm(b.addr)===norm(r.addr)){s.lat=+b.lat;s.lng=+b.lng;s.ver=true;s.src="Saved verified location"}{const Lm=locGet(s);if(Lm)useLoc(s,Lm)}if(r.lat&&r.lng&&isFinite(+r.lat)&&isFinite(+r.lng)){s.lat=+r.lat;s.lng=+r.lng;s.ver=true;s.pin=true;s.src="Your pasted coordinates";locSet(s,"pasted")}if(b&&b.notes)s.notes=[s.notes,b.notes].filter(Boolean).join(' | ');{const tg=String(r.color||r.tag||'').toLowerCase().trim();if(TAGS.includes(tg))s.tag=tg}st.push(s)});
- markDups();save();render();toast(`${known+fresh} stops added: ${known} recognized, ${fresh} new. Looking up addresses…`);geocode()}
+ markDups();save();render();if(!(opt&&opt.today))toast(`${known+fresh} stops added: ${known} recognized, ${fresh} new. Looking up addresses…`);geocode();return known+fresh}
+const TODAY_CSV='https://raw.githubusercontent.com/mattorres715/route-command-center/main/stops/today.csv';
+let todayBusy=false;
+async function loadToday(){if(todayBusy)return;todayBusy=true;try{
+ let text;try{const r=await fetch(TODAY_CSV+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error('http '+r.status);text=await r.text()}catch(e){toast("Couldn't load today's stops (offline or no connection). Current stops kept.");return}
+ text=String(text||'').replace(/^\uFEFF/,'').trim();const hdr=(text.split(/\r?\n/,1)[0]||'').toLowerCase();
+ const rows=(/\b(name|business)\b/.test(hdr)&&/\b(address|street|addr)\b/.test(hdr))?parseStops(text).filter(r=>r&&(r.name||r.addr)):[];
+ if(!rows.length){toast("Today's stop file is empty or invalid. Current stops kept.");return}
+ if(stops().length&&!confirm('Replace current stops with today\'s '+rows.length+' stop'+(rows.length===1?'':'s')+'?'))return;
+ const n=addRows(rows,{replace:!!stops().length,today:true});toast('Loaded today\'s '+n+' stop'+(n===1?'':'s')+'.');show('stops')}
+ finally{todayBusy=false}}
 function markDups(){const c={};stops().forEach(s=>{s.k=s.addr?norm(s.addr)+'|'+zip5(s.zip):'';if(s.k)c[s.k]=(c[s.k]||0)+1});stops().forEach(s=>s.dup=!!s.k&&c[s.k]>1)}
 // ---------- geocoding (free OpenStreetMap Nominatim, ~1 lookup/sec) ----------
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -319,7 +332,7 @@ function render(fit){calcEta();calcFar();stats();plInfo();etaCard();renderList()
 function stats(){const t=stops(),d=t.filter(s=>s.st==='done').length,o=t.filter(open),a=o.filter(s=>s.pr==='A').length,u=t.filter(s=>s.lat==null||!s.ver||s.far).length,p=t.length?Math.round(d/t.length*100):0;
  $('#stats').innerHTML=[['Total',t.length,'all'],['Done',d,'done'],['Left',o.length,'left'],['Priority A left',a,'A'],['Need check',u,'check'],['Complete',p+'%','done']].map(x=>`<div class="stat${flt===x[2]?' on':''}" role="button" onclick="setFlt('${x[2]}')"><b>${x[1]}</b>${x[0]}</div>`).join('');
  $('#barfill').style.width=p+'%';$('#hfill').style.width=p+'%';const n=nextStop();
- $('#hsum').textContent=t.length?`${d}/${t.length} done · ${a} A left${FIN?' · Finish ~'+f12(FIN.fin):''}${t.filter(late).length?' · '+t.filter(late).length+' may miss cutoff':''}${n?' · Next: '+n.name:''}`:'No stops yet. Open Tools to add some.';
+ $('#hsum').textContent=t.length?`${d}/${t.length} done · ${a} A left${FIN?' · Finish ~'+f12(FIN.fin):''}${t.filter(late).length?' · '+t.filter(late).length+' may miss cutoff':''}${n?' · Next: '+n.name:''}`:'No stops yet. Tap Load today\'s stops.';
  const ns=[...new Set(t.map(s=>s.city||s.zip||'').filter(Boolean))].sort(),f=$('#fn'),cur=f.value;f.innerHTML='<option value="">Any area</option>'+ns.map(n=>`<option>${esc(n)}</option>`).join('');f.value=cur;
  const L=t.filter(s=>s.lat!=null&&open(s)),oL=[...L].sort((a,b)=>a.n-b.n);$('#vbtn').textContent='Showing: '+(view==='orig'?'original order':'current order');
  if(L.length>1)$('#optInfo').dataset.cmp=`Original order ≈ ${km(len(oL))} km, current order ≈ ${km(len(L))} km (straight-line, open stops only).`;
@@ -336,7 +349,7 @@ function renderList(){const q=norm($('#q').value),fs=$('#fs').value,fp=$('#fp').
  let h;if(flt!=="all")h=rowsOf(base);else{const main=base.filter(([s])=>s.st!=="done"),dn=base.filter(([s])=>s.st==="done");
   h=rowsOf(main)+(dn.length?`<details class="comp" ${cOpen?"open":""} ontoggle="cOpen=this.open"><summary>✔ Completed (${dn.length})</summary>${rowsOf(dn)}</details>`:"")}
  colorBar();
- $('#list').innerHTML=chip+(h||(stops().length?'<div class="empty"><p>No stops match your filters.</p></div>':'<div class="empty"><b>No stops yet</b><p>Load your route to get started.</p><button class="pri" onclick="show(\'tools\')">Add stops</button></div>'))}
+ $('#list').innerHTML=chip+(h||(stops().length?'<div class="empty"><p>No stops match your filters.</p></div>':'<div class="empty"><b>No stops yet</b><p>Load your route to get started.</p><div class="row"><button class="pri" onclick="loadToday()">Load today\'s stops</button><button onclick="show(\'tools\')">Add stops</button></div></div>'))}
 function cardR(){const el=$('#card'),s=byId(sel);if(!s){el.hidden=true;return}el.hidden=false;const i=ordered().indexOf(s)+1;
  el.innerHTML=`<div class="chead"><div class="ctit"><b>#${i} ${esc(s.name)}</b>${s.addr||s.lat!=null?`<button class="nav" onclick="navTo('${s.id}')">📍 Navigate</button>`:''}</div><button class="x" onclick="sel=null;render()">✕</button></div>
  <div class="saddr">${esc(addrOf(s))||'<i>No address</i>'}</div><div class="tags">${tags(s)}</div>${osmBox(s)}${s.why?`<div class="why">Why it matters: ${esc(s.why)}</div>`:''}${s.notes?`<div>Notes: ${esc(s.notes)}</div>`:''}

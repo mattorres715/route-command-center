@@ -1,0 +1,44 @@
+name,address,city,zip,notes,cutoff,lat,lng
+Virtual Stockroom Inc,Boardwalk Suite R,Palm Desert,92211,business. suite R; no house number on the label. county has five Boardwalk points in Palm Desert 92211 (41865-41995) but no Suite R; Census and OSM had no exact match. please check and pin it in the app.,,,
+Audiolink Inc,74478 Hwy 111 #131,Palm Desert,92260,"business. suite 131; pin is the property/building. scanner zip was 92211; county, Census, and OSM all have 92260. same pin as 11/13 and 11/18. OSM also lists Short Stop Chevron at this address.",,33.721701,-116.365367
+Kristine Schultz,70 Sutton Pl S,Palm Desert,92211,county lists it as 70 S Sutton Pl.,,33.747203,-116.353642
+Murdica Electric,75145 St Charles Pl Ste3,Palm Desert,92211,business. suite 3; pin is the property/building. county has 75140-75160 St Charles Pl in a clear sequence and agrees with Census within 24 m.,,33.744825,-116.353640
+Colt N Kane Inc,685 Box Canyon Trail,Palm Desert,92211,,,33.757572,-116.327107
+Jessie Mao,75321 Buckley Dr,Palm Desert,92211,only the county point was found (Census and OSM had no match); county has 75234-75330 in a clear sequence.,,33.782180,-116.364296
+Baltes & Associates CPAs,41990 Cook St Bldg J Suite 902,Palm Desert,92211,business. Bldg J Suite 902; pin is the county unit J902 point (building J). county has 19 units across 164 m at 41990 Cook St.,,33.748224,-116.355826
+Yolanda Reyes,76354 Princeton Way,Palm Desert,92211,,,33.778091,-116.358763
+Jennifer Lien,77622 Country Club Dr #P,Palm Desert,92211,unit #P; pin is the property/building. first of three packages.,,33.758825,-116.310133
+Jennifer Lien,77622 Country Club Dr #P,Palm Desert,92211,unit #P; pin is the property/building. duplicate/second package at the same address.,,33.758825,-116.310133
+Jennifer Lien,77622 Country Club Dr #P,Palm Desert,92211,unit #P; pin is the property/building. duplicate/third package at the same address.,,33.758825,-116.310133
+CSU San Bernardino,37500 Cook St,Palm Desert,92211,ATTN Lacey Kendall. CSUSB Palm Desert Campus. Google Maps pin (exact address match; county had no 37500 Cook St).,,33.775659,-116.3548957
+Sara Lopez,75358 Kelsey Cir S,Palm Desert,92211,county lists it as 75358 S Kelsey Cir.,,33.729583,-116.350421
+Blanca Luz Gonzalez,43101 Portola Ave 35,Palm Desert,92260,space 35; Palm Desert Mobile Estates (spaces at 43101 Portola Ave). county lists the individual spaces under 43155 Portola Ave; pin is space 35. same park as the 11/17 stop at space 65.,,33.734253,-116.377781
+Kelle Simon,624 Arroyo View,Palm Desert,92260,"Census is 4.4 km away (it matched 624 Arroyo Vw at a different location). county has 620, 622, and 624 Arroyo View in a clear sequence, and OSM's Arroyo View in Bighorn is 31 m from the county point, so the county point for 624 was used. OSM lists the street zip as 92210.",,33.680560,-116.393988
+Distinctive Designs21 Inc,44489 Town Center Way Suite D125,Palm Desert,92260,business. suite D125; pin is the property/building (same as 11/17 and 11/18). Census is 162 m from the county point; OSM (Bagel Bistro at 44489) was 24 m from the county point.,,33.724573,-116.399419
+Sandeep Sibia,40845 Avenida Rosario,Palm Desert,92260,,,33.751617,-116.382237
+Jeff Duncan,45312 Driftwood Dr,Palm Desert,92260,,,33.719436,-116.362421
+Jack Schlosser,49825 Desert Vista Dr,Palm Desert,92260,,,33.680677,-116.377880
+Dennis Burke,44762 Santa Anita Ave,Palm Desert,92260,,,33.723361,-116.369711
+Alexander Margarita,73730 El Paseo Ste A,Palm Desert,92260,business. scanner had no house number; this is the boutique Alexander on El Paseo (owners Alexander and Margarita Mendez) at 73730 El Paseo Ste A. suite A; pin is the property/building. county and Census agree within 30 m. same pin as 11/18.,,33.720060,-116.378426
+Paul Smith LLC,73495 Agave Ln,Palm Desert,92260,,,33.696294,-116.382118
+Kimberly Tahernia,155 Wanish Pl,Palm Desert,92260,first of two packages.,,33.676946,-116.415506
+Kimberly Tahernia,155 Wanish Pl,Palm Desert,92260,duplicate/second package at the same address.,,33.676946,-116.415506
+Kristin Fritz,336 Metate Pl,Palm Desert,92260,,,33.684542,-116.417753
+Paula Barr,101 Piazza Perrone,Palm Desert,92260,,,33.756093,-116.378462
+College of the Desert,43500 Monterey Ave,Palm Desert,92260,"campus. Google Maps pin (exact address match; county had no 43500). campus is big, so find the mailroom or office on arrival.",,33.7324371,-116.3868358
+Edward Perez,19 Cork Tree,Rancho Mirage,92270,,,33.810687,-116.421792
+Lyn Chernis,31 Birkdale Cir,Rancho Mirage,92270,"Census and a street-level OSM house estimate are 142-148 m away (near county #1). county has houses 1-45 in a consecutive sequence, so the county point for 31 was used.",,33.796987,-116.420134
+Lee & Byeoun DDS Inc,35900 Bob Hope Dr Suite 110,Rancho Mirage,92270,business. suite 110; pin is county suite 110 (same as 11/17). Census is 224 m from the suite point.,,33.789740,-116.405359
+Aston Martin Rancho Mirage,71387 Hwy 111,Rancho Mirage,92270,"business. same address as Indigo, McLaren, and Desert European Motorcars. same pin as 11/13, 11/16, 11/17, and 11/18.",,33.745894,-116.418323
+Ramona Rule,6 Valencia Dr,Rancho Mirage,92270,,,33.754656,-116.415123
+Indigo European Motorcars LLC,71387 Hwy 111,Rancho Mirage,92270,"business. scanner showed Highway 000111 (treated as Hwy 111). first of three Indigo packages. same address as Aston Martin, McLaren, and Desert European Motorcars. same pin as 11/13, 11/16, 11/17, and 11/18.",,33.745894,-116.418323
+Bret Erdahl,73 Princeton Dr,Rancho Mirage,92270,,,33.763416,-116.424627
+Maureen Diamond,10 Mark Ter,Rancho Mirage,92270,only the county point was found (Census had no match; OSM house estimate is 63 m away); county has houses 9-11 in a clear sequence. same pin as 11/13.,,33.780043,-116.415579
+Tani Austin,40475 MorningStar Rd,Rancho Mirage,92270,,,33.751140,-116.403843
+Mr Mark and Christina Christi,27 Spyglass Cir,Rancho Mirage,92270,"Census and a street-level OSM house estimate are 139-145 m away (near county #7). county has houses 1-27 in a clear sequence around the circle, so the county point for 27 was used.",,33.783708,-116.417424
+Indigo European Motorcars LLC,71387 Hwy 111,Rancho Mirage,92270,"business. scanner showed Highway 000111 (treated as Hwy 111). duplicate/second Indigo package at the same address. same pin as 11/13, 11/16, 11/17, and 11/18.",,33.745894,-116.418323
+Indigo European Motorcars LLC,71387 Hwy 111,Rancho Mirage,92270,"business. scanner showed Highway 000111 (treated as Hwy 111). duplicate/third Indigo package at the same address. same pin as 11/13, 11/16, 11/17, and 11/18.",,33.745894,-116.418323
+McLaren Rancho Mirage,71387 Hwy 111,Rancho Mirage,92270,"business. same address as Aston Martin, Indigo, and Desert European Motorcars. same pin as 11/13, 11/16, 11/17, and 11/18.",,33.745894,-116.418323
+Michael Sylvester,71051 Tamarisk Ln,Rancho Mirage,92270,Google Maps confirms 71051 Tamarisk Ln within a few meters.,,33.779434,-116.422450
+Paul Para,26 Via Monaco,Rancho Mirage,92270,,,33.797131,-116.399380
+Ashley Brown,71387 Hwy 111,Rancho Mirage,92270,"business. Desert European Motorcars; same address as Aston Martin, McLaren, and Indigo. same pin as 11/13, 11/16, 11/17, and 11/18.",,33.745894,-116.418323
