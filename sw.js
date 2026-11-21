@@ -1,6 +1,6 @@
 // Route Command Center offline helper. Bump VERSION when you upload a new index.html.
 // stops/today.csv is not part of the shell: it is fetched live (network only) on each "Load today's stops".
-const VERSION='rcc-v5';
+const VERSION='rcc-v6';
 const SHELL=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png',
  'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css',
  'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'];
