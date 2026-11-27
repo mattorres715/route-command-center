@@ -1,48 +1,60 @@
 name,address,city,zip,notes,cutoff,lat,lng
-Stacey Howell,42430 Via Vicchio,Indian Wells,92210,"Google Maps-only pin (exact match for 42430 Via Vicchio); county has only 42100 on this street, so please double-check.",,33.7402415,-116.3470917
-James B Hopkins,73761 Van Gogh Dr,Palm Desert,92211,county and OSM agree within 5 m. Census had no match.,,33.790222,-116.376428
-Ana Alvarado,38630 Nyasa Dr,Palm Desert,92211,,,33.767661,-116.339481
-Country Club Mahjong,192 Green Mountain Dr,Palm Desert,92211,"Census and an OSM house estimate are 124-129 m from the county point; county has 192, 196, and 200 in a clear sequence, so the county point was used.",,33.752752,-116.350598
-Jack McGuire,224 Wagon Wheel Rd,Palm Desert,92211,"label said ""Wagonwheel Road""; county lists it as 224 Wagon Wheel Rd (two words).",,33.753278,-116.348724
-Dale Lapointe,263 E Vista Royale Cir,Palm Desert,92211,"label said ""263 Vista Royale Circle East""; county lists it as 263 E Vista Royale Cir (there is also 263 W). Census and OSM agree with the E point.",,33.767406,-116.348919
-Anh Nguyen,73121 Country Club Dr,Palm Desert,92260,business. Ste E5; pin is the property/building. same pin as 11/16 and 11/20.,,33.757589,-116.388407
-Stephan Cori,74924 Country Club Dr,Palm Desert,92260,160; pin is the property/building. Census is 238 m from the county point.,,33.760233,-116.357481
-Steve Beveridge,152 Don Miguel Cir,Palm Desert,92260,,,33.743952,-116.390633
-Joseph Hounsell,73433 Juniper St,Palm Desert,92260,same pin as 11/20.,,33.715816,-116.383545
-Distinctive Designs21 Inc,44489 Town Center Way,Palm Desert,92260,"business. Suite D125; pin is the property/building (same as 11/17, 11/18, 11/19, and 11/23). Census is 162 m from the county point; OSM (Bagel Bistro at 44489) is 24 m from the county point.",,33.724573,-116.399419
-Kellen Sakala,40868 Avenida Solana,Palm Desert,92260,,,33.751417,-116.382704
-Lenscrafters 5784 Desert Cros,72393 Hwy 111,Palm Desert,92260,"business. Suite A. label said ""72393 393 Highway 111""; 72393 Hwy 111 was used. pin is the property/building. Census is 133 m from the county point.",,33.726334,-116.403141
-Hugo Aguas,18 Shoreline Dr,Rancho Mirage,92270,"label said ""18 Shorelin Dr""; county lists it as 18 Shoreline Dr.",,33.795282,-116.446243
-Paul Wood,100 Via Santo Tomas,Rancho Mirage,92270,"Census is 119 m from the county point; county has 98-101 in a clear sequence, so the county point was used. same pin as the 11/23 stop at this address.",,33.798972,-116.445296
-Lori Daigle,37425 Los Reyes Dr,Rancho Mirage,92270,,,33.776734,-116.420337
-Amy Johnson,13 Lehigh Ct,Rancho Mirage,92270,,,33.760558,-116.410120
-Debra Kamino,59 La Ronda Dr,Rancho Mirage,92270,,,33.753870,-116.411701
-Michelle Ward,23 Spyglass Cir,Rancho Mirage,92270,Census and an OSM house estimate are 139-143 m from the county point; county point was used.,,33.784227,-116.417098
-McLaren Rancho Mirage,71387 Hwy 111,Rancho Mirage,92270,business. first of two McLaren packages. same address as Aston Martin. same pin as 11/13-11/23.,,33.745894,-116.418323
-Dalys Simmers,70368 Calico Rd,Rancho Mirage,92270,,,33.752277,-116.436483
-Georgia Rossi,7 Makena Ln,Rancho Mirage,92270,"gate code #1213 (from the 11/16 label at this address). county has no 7 Makena Ln (it has 2, 3, 5, 6, 8, 9, and 10); using the 11/16 pin, which matches Census within 6 m. today the OSM estimate is about 113 m east, so please double-check.",,33.755498,-116.403747
-Sabrina Rossi,7 Makena Ln,Rancho Mirage,92270,"gate code #1213 (from the 11/16 label at this address). same address as Georgia Rossi and Sydney Costello. county has no 7 Makena Ln (it has 2, 3, 5, 6, 8, 9, and 10); using the 11/16 pin, which matches Census within 6 m. today the OSM estimate is about 113 m east, so please double-check.",,33.755498,-116.403747
-Sydney Costello,7 Makena Ln,Rancho Mirage,92270,"gate code #1213 (from the 11/16 label at this address). same address as Georgia Rossi and Sabrina Rossi. county has no 7 Makena Ln (it has 2, 3, 5, 6, 8, 9, and 10); using the 11/16 pin, which matches Census within 6 m. today the OSM estimate is about 113 m east, so please double-check.",,33.755498,-116.403747
-Susan Funkey,71388 Country Club Dr,Rancho Mirage,92270,,,33.758116,-116.418721
-Brian Sheppard,7 Villaggio Pl,Rancho Mirage,92270,"Google Maps-only pin (exact match for 7 Villaggio Pl); county has 2, 3, 5, 8, and 9 but no 7, so please double-check.",,33.7711259,-116.4187600
-Plants 4 U,71650 Hwy 111,Rancho Mirage,92270,"business. Google Maps-only pin (exact match for 71650 Hwy 111); county has 71626 and 71660 nearby but no 71650, so please double-check.",,33.7441746,-116.4140212
-Sharon Seidman,10 Trafalgar Sq,Rancho Mirage,92270,"Google Maps-only pin (exact match for 10 Trafalgar Sq); label said ""10 Trafalgar"". county has 8, 9, 11, and 12 but no 10, so please double-check.",,33.7941298,-116.4071935
-McLaren Rancho Mirage,71387 Hwy 111,Rancho Mirage,92270,business. duplicate/second McLaren package at the same address. same address as Aston Martin. same pin as 11/13-11/23.,,33.745894,-116.418323
-Sunny Sapiente,910 Island Dr,Rancho Mirage,92270,313; pin is the county unit 313 point.,,33.769466,-116.412053
-Andrew Minnelli,5 Pinewood Cir,Rancho Mirage,92270,"Census is 138 m west of the county point (west of county 1); county has 1, 3, 5, 7, and 9 in a clear sequence, so the county point was used.",,33.787596,-116.415870
-Aston Martin Rancho Mirage,71387 Hwy 111,Rancho Mirage,92270,business. same address as McLaren. same pin as 11/13-11/23.,,33.745894,-116.418323
-Timothy Hanford,28 Villaggio Pl,Rancho Mirage,92270,"Census and an OSM house estimate are 239-244 m from the county point; county has 26, 27, 28, and 29 in a clear sequence, so the county point was used.",,33.769873,-116.417083
-Stephen Soncy,5 Creekside Dr,Rancho Mirage,92270,,,33.766466,-116.429936
-Amy Smookler,70600 Country Club Dr,Rancho Mirage,92270,"217. Google Maps-only pin (exact match for 70600 Country Club Dr); county has no 70600 (nearby county point is 70737), so please double-check.",,33.7577849,-116.4315603
-Morgan Levien,113 Via Santo Tomas,Rancho Mirage,92270,same pin as 11/17.,,33.797698,-116.445880
-Kathleen Taylor,74 Prosecco,Rancho Mirage,92270,"""74 Prosecco"" is a real address (a street named Prosecco, with no suffix).",,33.809166,-116.412858
-Ron Geatz,4 Columbia Dr,Rancho Mirage,92270,same pin as 11/16.,,33.762871,-116.409501
-Teresa Lepoidevin,8 Echo Ln,Rancho Mirage,92270,"Census is 171 m from the county point (near 1 and 2 Echo Ln); county has houses 1-9 in a clear even/odd sequence, so the county point for 8 was used. same pin as 11/17.",,33.796096,-116.402485
-Adelaide Jessup,16 Ledgestone Ln,Rancho Mirage,92270,"Census and an OSM house estimate are 261-266 m east of the county point (near county 4-7); county has 1-17 in a clear even/odd sequence, so the county point for 16 was used.",,33.785389,-116.431284
-Barbara Hyde Evans,1 Saturn Cir,Rancho Mirage,92270,,,33.760844,-116.443161
-Gregory Ducharme,900 Island Dr,Rancho Mirage,92270,Apt 311; pin is the county unit 311 point.,,33.766886,-116.411771
-Paul Smith LLC,40270 Paseo Del Rey,Rancho Mirage,92270,,,33.754311,-116.441035
-Ann Deutscher,70674 Boothill Rd,Rancho Mirage,92270,,,33.752967,-116.431291
-LegalDocsByMe,71905 Hwy 111,Rancho Mirage,92270,business. Suite G; pin is the property/building.,,33.738049,-116.410335
-Tricia Prentice,19 Sun Ridge Cir,Rancho Mirage,92270,,,33.775190,-116.423603
-Lida Paukert,4018 Via Fragante,Palm Desert,92260,"4-digit house number is real; 40180 does not exist. county has 4000-4029 on this street, with units 1-3 at 4018. today's label had no unit; pin is the county cluster (spread 13 m). Census is 97 m from the cluster.",,33.755698,-116.380918
+Rocio Marta,45377 Blackfoot Way,Indian Wells,92210,,,33.719098,-116.342967
+Julie Reese,74001 Reserve Dr,Indian Wells,92210,"Sales Ofc; pin is the county type-6 (facility) point. Census and OSM are 580 m south of that point, so the county sales-office point was used. please double-check.",,33.694627,-116.373034
+Brenda Pruitt,76887 Inca Dr,Indian Wells,92210,,,33.720901,-116.322452
+Kimberly Murray,42599 Via Prato,Indian Wells,92210,,,33.739153,-116.337463
+Nathan Sandler,74305 Desert Oasis Trl,Indian Wells,92210,"Google Maps-only pin (exact match for 74305 Desert Oasis Trl); county has 74283 and 74327 but no 74305, so please double-check.",,33.6872044,-116.3671841
+Mathew Moreno,74158 Pele Pl,Palm Desert,92211,,,33.773386,-116.371686
+Samantha Garcia,426 N Desert Falls Dr,Palm Desert,92211,"label said ""426 Desert Falls Dr N""; county lists it as 426 N Desert Falls Dr.",,33.772237,-116.346237
+Joaquin Tercero,37619 Driscoll St,Palm Desert,92211,"Google Maps-only pin (exact match for 37619 Driscoll St); county has 37591 and 37647 on the odd side but no 37619, so please double-check.",,33.7755219,-116.3766561
+Juanito Pangilinan,76739 Florida Ave,Palm Desert,92211,,,33.729236,-116.325497
+Jaswinder Brar,49901 Crescent Passage,Palm Desert,92211,"label said ""Crescent Psge""; county lists it as Crescent Passage.",,33.783622,-116.374883
+Kelly Gross,78685 Rockwell Cir,Palm Desert,92211,,,33.759045,-116.291942
+Jumi Achermann,77611 S Calle Las Brisas,Palm Desert,92211,"label said ""77611 Calle Las Brisas""; county lists it as 77611 S Calle Las Brisas.",,33.729313,-116.310714
+Attn Chanya,42980 Wisconsin Ave,Palm Desert,92211,same address as Attn Preecha and Chatmongkol Pattara. same pin as 11/13 (then labeled Attn: Pranee) and 11/18.,,33.737469,-116.319330
+Attn Preecha,42980 Wisconsin Ave,Palm Desert,92211,same address as Attn Chanya and Chatmongkol Pattara. same pin as 11/13 and 11/18.,,33.737469,-116.319330
+Chatmongkol Pattara,42980 Wisconsin Ave,Palm Desert,92211,same address as Attn Chanya and Attn Preecha. same pin as 11/13 and 11/18.,,33.737469,-116.319330
+Mike Ingle,41230 Carlotta Dr,Palm Desert,92211,,,33.749427,-116.343386
+Idajean Kaplan,76717 Chrysanthemum Way,Palm Desert,92211,,,33.760530,-116.328605
+Ms Carol Shapiro,78725 Falsetto Dr,La Quinta,92253,"county lists this address in Palm Desert 92211, not La Quinta 92253. Census and OSM had no match under the listed city/zip; the county point was used.",,33.796399,-116.289167
+Brent & Cheryl Holden,1008 Cahuilla Falls,Palm Desert,92260,"""1008 Cahuilla Falls"" is a real address (a street named Cahuilla Falls, with no suffix).",,33.688357,-116.399739
+Emily Sundback,73575 Shadow Mountain Dr,Palm Desert,92260,Unit B; pin is the property/building.,,33.717639,-116.381039
+Tara Hanjan,73600 Pinyon St,Palm Desert,92260,,,33.715457,-116.380703
+Pam McIlroy,160 Wanish Pl,Palm Desert,92260,same pin as 11/13 and 11/23.,,33.676506,-116.416053
+Edilma Sosa,72761 Tamarisk St,Palm Desert,92260,,,33.707411,-116.394637
+Anthony Timo,48871 North View Dr,Palm Desert,92260,"label said ""48871 N View Dr""; county lists the street as North View Dr (North is part of the name, not a direction).",,33.692711,-116.395039
+Longnecker Sandra,73265 Fiddleneck Ln,Palm Desert,92260,,,33.713056,-116.386618
+Emilio Rivera,74621 Velardo Dr,Palm Desert,92260,"county has Velardo Dr in Palm Desert 92260, but house numbers only run through about 74381; there is no 74621. Census and OSM had no match, and Google Maps said the location shown is not precise, so the pin was left blank.",,,
+Nailed Golf,74239 Santa Rosa Cir,Palm Desert,92260,"business. Census and an OSM house estimate are 123 m from the county point; county has 74217-74253 in a clear sequence, so the county point was used. same pin as 11/16 and 11/20.",,33.727173,-116.370059
+Luis Edgardo Flores,44099 Oran Ct,Palm Desert,92260,,,33.728525,-116.363402
+Hapag Lloyd,128 Courtside Dr,Palm Desert,92260,business.,,33.751662,-116.377256
+Shahram Nazari,357 San Remo St,Palm Desert,92260,Apt 45; pin is the property/building. county lists it as 357 San Remo (no St).,,33.749582,-116.378526
+Tosh Adibi,40789 Sonata Ct,Palm Desert,92260,,,33.752015,-116.374652
+Detje Marcel,73120 Crosby Ln,Palm Desert,92260,,,33.690934,-116.390124
+Andrea Wood,73375 Desert Rose Dr,Palm Desert,92260,,,33.703762,-116.384532
+Joseph Hernandez,487 Vista Bonita,Palm Desert,92260,"""487 Vista Bonita"" is a real address (a street named Vista Bonita, with no suffix).",,33.730780,-116.396537
+Richard Swan Swan,157 S Camino Arroyo,Palm Desert,92260,"label said ""157 Camino Arroyo South""; county lists it as 157 S Camino Arroyo (there is also 157 N). Census is about 254 m east; county has 151-169 S Camino Arroyo in a tight sequence, so the county point for 157 S was used (same approach as the 11/18 stop at 127 S and the 11/23 stop at 163 S).",,33.739866,-116.377173
+Marie Withrow,72869 Arboleda Ave,Palm Desert,92260,"label said ""72869 Arboleda Dr""; county lists it as 72869 Arboleda Ave.",,33.730278,-116.393547
+Ann Robinow,7 Ambassador Cir,Rancho Mirage,92270,"Census and OSM are 205 m from the county point (near the 40s on this circle); county has 1, 3, 5, 7, and 9 in a clear sequence, so the county point for 7 was used.",,33.781913,-116.420025
+John Hager,4 Columbia Dr,Rancho Mirage,92270,same pin as the 11/16 and 11/25 stops at this address.,,33.762871,-116.409501
+Douglas Huber,35008 Vista del Ladero,Rancho Mirage,92270,Suite D; pin is the property/building. Census is 104 m from the county point.,,33.795624,-116.442713
+Eunice F Bietz,34 Malaga Dr,Rancho Mirage,92270,,,33.748744,-116.410288
+Janis Kowall,129 Waterford Cir,Rancho Mirage,92270,,,33.771148,-116.421455
+Gianna Riley,12114 Turnberry Dr,Rancho Mirage,92270,"the 5-digit house number is real; county has 12110, 12112, 12114, and 12116 in a clear sequence on Turnberry Dr in Rancho Mirage.",,33.792970,-116.418917
+Ronald Smith,1 Santa Rosa Mountain Ln,Rancho Mirage,92270,"county stores some houses on this street as ""SANTA ROSA MOUNTAI"" (truncated), so the usual lookup missed it. the county point for 1 agrees with OSM within 1 m and sits between 1, 3, and 5.",,33.768419,-116.458678
+Matthew Leeson,100 Via Santo Tomas,Rancho Mirage,92270,"Census is 119 m from the county point; county has 98-101 in a clear sequence, so the county point was used. same pin as the 11/23 and 11/25 stops at this address.",,33.798972,-116.445296
+Aston Martin Rancho Mirage,71387 Hwy 111,Rancho Mirage,92270,business. first of two Aston Martin packages. same address as Indigo European Motorcars. same pin as 11/13-11/25.,,33.745894,-116.418323
+Dana Martino,12 Estrella St,Rancho Mirage,92270,county lists it as 12 Estrella (no St).,,33.755346,-116.408532
+Susan Funkey,71388 Country Club Dr,Rancho Mirage,92270,same pin as 11/25.,,33.758116,-116.418721
+Jean Guy Poitras,11 Santa Rosa Mountain Ln,Rancho Mirage,92270,county lists this house as 11 Santa Rosa Mtn Ln; the county point agrees with OSM within 15 m.,,33.769566,-116.458526
+Indigo European Motorcars LLC,71387 Hwy 111,Rancho Mirage,92270,"business. first of two Indigo packages. label said ""Highway 000111""; 71387 Hwy 111 was used. same address as Aston Martin. same pin as 11/13-11/25.",,33.745894,-116.418323
+Indigo European Motorcars LLC,71387 Hwy 111,Rancho Mirage,92270,"business. duplicate/second Indigo package at the same address. label said ""Highway 000111""; 71387 Hwy 111 was used. same address as Aston Martin. same pin as 11/13-11/25.",,33.745894,-116.418323
+Aston Martin Rancho Mirage,71387 Hwy 111,Rancho Mirage,92270,business. duplicate/second Aston Martin package at the same address. same address as Indigo European Motorcars. same pin as 11/13-11/25.,,33.745894,-116.418323
+Renee Metrick,42765 Dunes View Rd,Rancho Mirage,92270,"Google Maps-only pin (exact match for 42765 Dunes View Rd, Sensei Porcupine Creek property); same pin as the later 11/18 update. county point is 274 m off. guardhouse pin 33.740273,-116.422624",,33.7368541,-116.4197871
+Ellen Boyer,130 Desert West Dr,Rancho Mirage,92270,"county has two points for 130 (a type-1 house point and a type-3 point about 372 m away). Census and OSM agree with the type-1 point, which sits between 128 and 132, so that house point was used.",,33.787992,-116.437724
+Susan Holoff,21 Cornell Dr,Rancho Mirage,92270,,,33.760303,-116.416058
+Israel Ibarra,31343 Via Pared,Thousand Palms,92276,,,33.821240,-116.396259
+Glen Coy,30560 Gunther St,Thousand Palms,92276,same pin as the 11/23 stop at this address (then labeled Windmill City Screen Printing).,,33.827013,-116.401408
+Gail Erickson,76876 Tomahawk Run,Indian Wells,92210,Census and OSM are about 105 m from the county point; the county point was used.,,33.720636,-116.323095
+Carrie Brody,3 Windemere Ct,Rancho Mirage,92270,Windemere is the official spelling (not Windermere).,,33.766722,-116.426754
+Corinne Dodge,21 Skysail Dr,Rancho Mirage,92270,"label said ""21 Sky Sail Drive""; county lists it as 21 Skysail Dr (one word). Census is 136 m from the county point (near 17); county has 17, 18, 21, and 23, so the county point for 21 was used.",,33.747598,-116.430506
